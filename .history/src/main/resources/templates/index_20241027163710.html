@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Document Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        /* General Styles */
+        body { font-family: Arial, sans-serif; margin: 0; display: flex; height: 100vh; background-color: #f4f4f4; }
+        .sidebar { width: 200px; background-color: #333; color: white; padding: 15px; }
+        .sidebar h2 { font-size: 1.5em; margin-bottom: 20px; }
+        /* Sidebar Button Styles */
+        .sidebar button {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: none;
+            background-color: #444; /* Default background for buttons */
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .sidebar button:hover {
+            background-color: #555; /* Hover effect */
+        }
+
+        /* Admin Button Styles */
+        .sidebar .admin-button {
+            background-color: #007bff; /* Background color for admin buttons */
+            color: white;
+        }
+
+        .sidebar .admin-button:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+        }
+        .main { flex: 1; padding: 20px; }
+        .search-container { display: flex; flex-direction: column; margin-bottom: 20px; }
+        .search-container input { padding: 10px; font-size: 1em; margin-bottom: 10px; border: 1px solid #ccc; }
+        .filter-button { padding: 10px; background-color: #007bff; color: white; border: none; cursor: pointer; transition: background-color 0.3s; }
+        .filter-button:hover { background-color: #0056b3; }
+
+        .recent-docs {
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+}
+
+.doc-item {
+
+
+.doc-checkbox {
+    margin-right: 10px;
+}
+.view-btn:hover {
+    text-decoration: underline;
+}
+
+        /* Recent Documents Section */
+        .recent-docs { padding: 10px; }
+        .doc-item { display: flex; align-items: center; padding: 10px 5px; border-bottom: 1px solid #ddd; transition: background-color 0.2s ease; margin-bottom: 5px; }
+        .doc-item:hover { background-color: #f0f0f0; }
+        .doc-checkbox { display: none; }
+        .doc-label { display: flex; align-items: center; width: 100%; cursor: pointer; }
+        .doc-label span { flex-grow: 1; padding-left: 8px; }
+        .view-btn { margin-left: auto; padding: 4px 8px; color: black; text-decoration: none; border-radius: 4px; transition: color 0.2s ease, background-color 0.2s ease; }
+
+        /* Styles when checkbox is selected */
+        .doc-checkbox:checked + .doc-label { background-color: #e0eaff; }
+        .doc-checkbox:checked + .doc-label .view-btn { color: white; background-color: #007bff; }
+        /* Login Container */
+        .login-container { width: 160px; padding: 15px; background-color: #f9f9f9; border-left: 1px solid #ccc; }
+        .login-container h3 { margin-bottom: 15px; }
+        .login-container input { width: 80%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; }
+        .login-container button { width: 80%; padding: 10px; background-color: #28a745; color: white; border: none; cursor: pointer; transition: background-color 0.3s; }
+        .login-container button:hover { background-color: #218838; }
+        /* Logout Button Styles */
+        .logout-button {
+            width: 10vw;
+            padding: 10px;
+            background-color: #dc3545; /* Red background for logout */
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            border-radius: 5px; /* Rounded corners */
+            margin-top: 20px; /* Spacing from other elements */
+            margin-right: 5px /* Right margin for spacing */;
+        }
+        .logout-button:hover {
+            background-color: #c82333; /* Darker red on hover */
+        }
+        .filter-form {
+            background-color: #f9f9f9; /* Light background for the form */
+            padding: 20px;            /* Padding around the form */
+            border-radius: 8px;       /* Rounded corners */
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+            margin: 20px;             /* Margin around the form */
+        }
+
+        .form-group {
+            margin-bottom: 15px;      /* Space between form groups */
+        }
+
+        .form-group label {
+            display: block;           /* Labels take up full width */
+            margin-bottom: 5px;      /* Space between label and input */
+            font-weight: bold;        /* Bold labels for emphasis */
+        }
+
+        .form-control {
+            width: 65vw;              /* Full width for inputs and selects */
+            padding: 10px;           /* Padding inside inputs */
+            border: 1px solid #ccc;  /* Light gray border */
+            border-radius: 4px;      /* Slightly rounded corners */
+            transition: border-color 0.3s; /* Smooth transition for border color */
+        }
+
+        .form-control:focus {
+            border-color: #007bff;   /* Blue border on focus */
+            outline: none;            /* Remove default outline */
+        }
+
+        .filter-button {
+            background-color: #007bff; /* Blue background for button */
+            color: white;              /* White text for button */
+            padding: 10px 15px;       /* Padding for the button */
+            border: none;              /* No border */
+            border-radius: 4px;       /* Rounded corners */
+            cursor: pointer;           /* Pointer cursor on hover */
+            transition: background-color 0.3s; /* Smooth transition for background color */
+        }
+
+        .filter-button:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+        }
+
+
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h1>Document Management System</h1>
+        <!-- Add, Modify, Delete Buttons -->
+        <div th:if="${isLoggedIn}">
+            <form th:action="@{/add-document}" method="get">
+                <button type="submit" class="admin-button">Add Document</button>
+            </form>
+            
+            <button th:class="'admin-button'">Modify Document</button>
+            <button th:class="'admin-button'">Delete Document</button>
+        </div>
+    </div>
+    
+
+    <div class="main">
+        <div class="search-container">
+            <input type="text" placeholder="Document Search...">
+            
+            <!-- Toggle button for advanced filter form -->
+            <form th:action="@{/toggle-filter}" method="post" style="display: inline;">
+                <input type="hidden" name="showFilter" th:value="${showFilter}" />
+                <button type="submit" class="filter-button">Advanced Filter</button>
+            </form>
+        </div>
+        <!-- Advanced Filter Form (conditionally displayed) -->
+        <div th:if="${showFilter}" id="filter-form" class="filter-form">
+            <h3>Advanced Filter</h3>
+            <form th:action="@{/apply-filters}" method="post">
+                <div class="form-group">
+                    <label for="documentType">Document Type:</label>
+                    <select id="documentType" name="documentType" class="form-control">
+                        <option value="">Select Type</option>
+                        <option value="report">Report</option>
+                        <option value="novel">Novel</option>
+                        <option value="encyclopedia">Encyclopedia</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="documentGenre">Document Genre:</label>
+                    <select id="documentGenre" name="documentGenre" class="form-control">
+                        <option value="">Select Genre</option>
+                        <option value="fiction">Fiction</option>
+                        <option value="non-fiction">Non-Fiction</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="documentLanguage">Document Language:</label>
+                    <select id="documentLanguage" name="documentLanguage" class="form-control">
+                        <option value="">Select Language</option>
+                        <option value="english">English</option>
+                        <option value="spanish">Spanish</option>
+                        <option value="french">French</option>
+                        <!-- Add other languages as needed -->
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="documentFileFormat">File Format:</label>
+                    <select id="documentFileFormat" name="documentFileFormat" class="form-control">
+                        <option value="">Select File Format</option>
+                        <option value="pdf">PDF</option>
+                        <option value="doc">DOC</option>
+                        <option value="epub">EPUB</option>
+                        <!-- Add other formats as needed -->
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="author">Author:</label>
+                    <input type="text" id="author" name="author" placeholder="Enter author name" class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label for="creationDate">Creation Date:</label>
+                    <input type="date" id="creationDate" name="creationDate" class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label for="modificationDate">Modification Date:</label>
+                    <input type="date" id="modificationDate" name="modificationDate" class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label for="pageCount">Page Count:</label>
+                    <input type="number" id="pageCount" name="pageCount" placeholder="Enter page count" class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label for="publishDate">Publish Date:</label>
+                    <input type="date" id="publishDate" name="publishDate" class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label for="title">Title:</label>
+                    <input type="text" id="title" name="title" placeholder="Enter document title" class="form-control">
+                </div>
+
+                <button type="submit" class="filter-button">Apply Filters</button>
+            </form>
+        </div>
+
+        
+
+
+        <!-- Recent Documents Section -->
+        <div class="recent-docs">
+            <h2>Recent Documents</h2>
+            <div th:each="document : ${documents}">
+                <div class="doc-item">
+                    <input type="checkbox" class="doc-checkbox" id="doc-[[${document.id}]]">
+                    <label class="doc-label" for="doc-[[${document.id}]]">
+                        <span>[[${document.title}]] by [[${document.author}]]</span>
+                        <a class="view-btn" href="#" th:href="@{/document/view(id=${document.id})}">View</a>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Login Form -->
+    <div class="login-container" th:if="${!isLoggedIn}">
+        <h2>Are you an admin?</h2>
+        <h3>Login</h3>
+        <form action="#" th:action="@{/login}" method="post">
+            <input type="text" name="username" placeholder="Username" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <button type="submit">Login</button>
+        </form>
+    </div>
+
+    <!-- Logout Button -->
+    <div th:if="${isLoggedIn}">
+        <form action="#" th:action="@{/logout}" method="post">
+            <button type="submit" class="logout-button">Logout</button>
+        </form>
+    </div>
+</body>
+</html>

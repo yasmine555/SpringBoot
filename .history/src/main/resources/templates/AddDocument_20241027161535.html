@@ -1,0 +1,34 @@
+<form th:action="@{/add-document}" method="post" enctype="multipart/form-data">
+    <label for="title">Title:</label>
+    <input type="text" id="title" name="title" required>
+
+    <label for="author">Author:</label>
+    <input type="text" id="author" name="author" required>
+
+    <label for="genre">Genre:</label>
+    <input type="text" id="genre" name="genre" required>
+
+    <label for="type">Type:</label>
+    <input type="text" id="type" name="type" required>
+
+    <label for="language">Language:</label>
+    <input type="text" id="language" name="language" required>
+
+    <label for="summary">Summary:</label>
+    <textarea id="summary" name="summary" required></textarea>
+
+    <label for="publish_Date">Publish Date:</label>
+    <input type="date" id="publishDate" name="publishDate" required>
+
+    <label for="pageCount">Page Count:</label>
+    <input type="number" id="pageCount" name="pageCount" required>
+
+    <label for="fileFormat">File Format:</label>
+    <input type="text" id="fileFormat" name="fileFormat" required>
+
+    <label for="documentFile">Attach Document:</label>
+    <input type="file" id="documentFile" name="documentFile" required>
+
+    <button type="submit">Add Document</button>
+    <a href="/" class="cancel-button">Cancel</a>
+</form>
