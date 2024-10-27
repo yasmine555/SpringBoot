@@ -152,8 +152,7 @@ public class Document {
     }
 
     public void setFilePath(String file_path) {
-        this.file_path = file_path;
-        
+        this.file_path = file_path; 
     }
 
     
