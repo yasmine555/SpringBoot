@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Document Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .document-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .document-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .document-info {
+            margin-bottom: 20px;
+        }
+
+        .document-info label {
+            font-weight: bold;
+            color: #555;
+        }
+
+        .document-info p {
+            margin: 5px 0 15px;
+            color: #666;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-buttons a {
+            text-decoration: none;
+            padding: 8px 15px;
+            color: #fff;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .edit-button {
+            background-color: #007bff;
+        }
+
+        .delete-button {
+            background-color: #dc3545;
+        }
+
+        .edit-button:hover {
+            background-color: #0056b3;
+        }
+
+        .delete-button:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+
+<div class="document-container" th:each="document : ${documents}">
+    <div class="document-title" th:text="${document.title}">Document Title</div>
+
+    <div class="document-info">
+        <label>Author:</label>
+        <p th:text="${document.author}">Author Name</p>
+
+        <label>Genre:</label>
+        <p th:text="${document.genre}">Genre Info</p>
+
+        <label>Type:</label>
+        <p th:text="${document.type}">Type Info</p>
+
+        <label>Language:</label>
+        <p th:text="${document.language}">Language Info</p>
+
+        <label>Summary:</label>
+        <p th:text="${document.summary}">Summary content goes here...</p>
+
+        <label>Publish Date:</label>
+        <p th:text="${#dates.format(document.publishDate, 'yyyy-MM-dd')}">Publish Date</p>
+
+        <label>Page Count:</label>
+        <p th:text="${document.pageCount}">Page Count</p>
+
+        <label>File Format:</label>
+        <p th:text="${document.fileFormat}">File Format</p>
+
+        <label>Document ID:</label>
+        <p th:text="${document.id}">Document ID</p>
+    </div>
+
+    <div class="action-buttons">
+        <a th:href="@{/edit-document/{id}(id=${document.id})}" class="edit-button">Edit</a>
+        <a th:href="@{/delete-document/{id}(id=${document.id})}" class="delete-button"
+           onclick="return confirm('Are you sure you want to delete this document?');">Delete</a>
+    </div>
+</div>
+
+</body>
+</html>

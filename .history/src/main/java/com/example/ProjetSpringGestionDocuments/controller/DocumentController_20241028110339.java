@@ -24,7 +24,7 @@ import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class DocumentController {
-    @Value("${upload.dir}")
+    @Value("upload.dir}")
     private String uploadDir; // Path to upload directory
 
     @Autowired
@@ -123,23 +123,16 @@ public class DocumentController {
         }
     }
 
-    @GetMapping("/view-document")
-    public String viewDocument(@RequestParam("selectedDocument") Long documentId, Model model) {
-        Document document = documentRepository.findById(documentId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid document ID: " + documentId));
-        model.addAttribute("documents", List.of(document)); // Pass the selected document to the view
+    @GetMapping("/documents")
+    public String showDocuments(Model model) {
+        List<Document> documents = documentRepository.findAll();
+        model.addAttribute("documents", documents);
         return "documents";
     }
-    
-
 
     @GetMapping("/edit-document/{id}")
     public String showEditDocumentPage(@PathVariable Long id, Model model) {
-        Document document = documentRepository.findById(id).orElse(null);
-        if (document == null) {
-            model.addAttribute("errorMessage", "Document not found");
-            return "redirect:/documents";
-        }
+        Document document = documentRepository.findById(id).orElse(new Document());
         model.addAttribute("document", document);
         return "editDocument";
     }
@@ -156,5 +149,6 @@ public class DocumentController {
         return "redirect:/documents";
     }
 
+ 
     // Remaining methods for filtering, updating, etc.
 }

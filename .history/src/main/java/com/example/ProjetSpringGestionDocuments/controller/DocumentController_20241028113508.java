@@ -123,14 +123,15 @@ public class DocumentController {
         }
     }
 
-    @GetMapping("/view-document")
-    public String viewDocument(@RequestParam("selectedDocument") Long documentId, Model model) {
-        Document document = documentRepository.findById(documentId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid document ID: " + documentId));
-        model.addAttribute("documents", List.of(document)); // Pass the selected document to the view
-        return "documents";
+    @GetMapping("/documents/{id}")
+    public String viewDocumentContent(@PathVariable Long id, Model model) {
+        Document document = documentRepository.findById(id).orElse(null);
+        if (document == null) {
+            return "redirect:/documents"; // Redirect if document not found
+        }
+        model.addAttribute("document", document);
+        return "documents"; // Return the viewDocument template
     }
-    
 
 
     @GetMapping("/edit-document/{id}")

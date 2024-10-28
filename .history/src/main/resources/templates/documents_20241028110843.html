@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Document List</title>
+</head>
+<body>
+<h1>Document List</h1>
+<table border="1">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="document : ${documents}">
+            <td th:text="${document.id}"></td>
+            <td th:text="${document.title}"></td>
+            <td th:text="${document.author}"></td>
+            <td>
+                <a th:href="@{/edit-document/{id}(id=${document.id})}">Edit</a>
+                <a th:href="@{/delete-document/{id}(id=${document.id})}">Delete</a>
+            </td>
+        </tr>
+        <a th:href="@{/delete-document/{id}(id=${document.id})}" onclick="return confirm('Are you sure you want to delete this document?');">Delete</a>
+
+    </tbody>
+</table>
+</body>
+</html>

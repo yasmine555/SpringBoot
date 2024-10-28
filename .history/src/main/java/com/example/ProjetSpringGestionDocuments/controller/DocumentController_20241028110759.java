@@ -123,26 +123,24 @@ public class DocumentController {
         }
     }
 
-    @GetMapping("/view-document")
-    public String viewDocument(@RequestParam("selectedDocument") Long documentId, Model model) {
-        Document document = documentRepository.findById(documentId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid document ID: " + documentId));
-        model.addAttribute("documents", List.of(document)); // Pass the selected document to the view
+    @GetMapping("/documents")
+    public String showDocuments(Model model) {
+        List<Document> documents = documentRepository.findAll();
+        model.addAttribute("documents", documents);
         return "documents";
     }
-    
-
 
     @GetMapping("/edit-document/{id}")
-    public String showEditDocumentPage(@PathVariable Long id, Model model) {
-        Document document = documentRepository.findById(id).orElse(null);
-        if (document == null) {
-            model.addAttribute("errorMessage", "Document not found");
-            return "redirect:/documents";
+        public String showEditDocumentPage(@PathVariable Long id, Model model) {
+            Document document = documentRepository.findById(id).orElse(null);
+            if (document == null) {
+                model.addAttribute("errorMessage", "Document not found");
+                return "redirect:/documents";
+            }
+            model.addAttribute("document", document);
+            return "editDocument";
         }
-        model.addAttribute("document", document);
-        return "editDocument";
-    }
+
 
     @PostMapping("/edit-document/{id}")
     public String updateDocument(@PathVariable Long id, @ModelAttribute Document document) {
@@ -156,5 +154,6 @@ public class DocumentController {
         return "redirect:/documents";
     }
 
+ 
     // Remaining methods for filtering, updating, etc.
 }
