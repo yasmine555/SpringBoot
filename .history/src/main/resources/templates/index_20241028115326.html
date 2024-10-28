@@ -282,17 +282,17 @@
         </div>
 
         <!-- Recent Documents Section -->
-        <form th:action="@{/view-document}" method="get">
-            <div th:each="document : ${documents}">
-                <div class="doc-item">
-                    <input type="radio" class="doc-radio" id="doc-${document.id}" name="selectedDocument" th:value="${document.id}" required>
-                    <label class="doc-label" for="doc-${document.id}">
-                        <span class="doc-title" th:text="${document.title}"></span> | 
-                        <span class="doc-author" th:text="${document.author}"></span>
-                        <span class="doc-summary" th:text="${#strings.abbreviate(document.summary, 200)}"></span>
-                    </label>
-                </div>
-            </div>            
+        <div th:each="document : ${documents}">
+            <div class="doc-item">
+                <input type="radio" class="doc-radio" id="doc-${document.id}" name="selectedDocument" th:value="${document.id}" required>
+                <label class="doc-label" for="doc-${document.id}">
+                    <span class="doc-title" th:text="${document.title}"></span> | 
+                    <span class="doc-author" th:text="${document.author}"></span>
+                    <span class="doc-summary" th:text="${#strings.abbreviate(document.summary, 200)}"></span>
+                </label>
+            </div>
+        </div>
+        
             <button type="submit" class="view-btn">View Selected Document</button>
         </form>
         

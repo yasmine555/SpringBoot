@@ -132,6 +132,7 @@ public class DocumentController {
         model.addAttribute("documents", List.of(document)); 
         return "documents"; // The Thymeleaf template that displays document details
     }
+}
     
 
 
