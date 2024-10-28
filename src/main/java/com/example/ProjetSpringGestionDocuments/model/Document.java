@@ -2,7 +2,9 @@ package com.example.ProjetSpringGestionDocuments.model;
 
 import jakarta.persistence.*;
 
+
 import java.util.Date;
+
 
 @Entity
 @Table(name = "infodoc")
