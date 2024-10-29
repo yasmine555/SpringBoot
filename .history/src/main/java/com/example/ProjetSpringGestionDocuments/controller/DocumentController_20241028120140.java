@@ -1,10 +1,6 @@
 package com.example.ProjetSpringGestionDocuments.controller;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
@@ -149,55 +145,7 @@ public class DocumentController {
         model.addAttribute("document", document);
         return "editDocument";
     }
-    @PostMapping("/edit-document/{id}")
-    public String updateDocument(@PathVariable("id") Long documentId, 
-                                @ModelAttribute("document") Document document,
-                                @RequestParam("documentFile") MultipartFile file) {
-        // Retrieve the existing document from the database
-        Document existingDocument = documentRepository.findById(documentId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid document ID: " + documentId));
-
-        // Update fields from the form
-        existingDocument.setTitle(document.getTitle());
-        existingDocument.setAuthor(document.getAuthor());
-        existingDocument.setGenre(document.getGenre());
-        existingDocument.setType(document.getType());
-        existingDocument.setLanguage(document.getLanguage());
-        existingDocument.setSummary(document.getSummary());
-        existingDocument.setPublishDate(document.getPublishDate());
-        existingDocument.setPageCount(document.getPageCount());
-        existingDocument.setFileFormat(document.getFileFormat());
-        existingDocument.setModificationDate(new Date()); // Set modification date to now
-
-        // Handle file upload if a new file is provided
-        if (!file.isEmpty()) {
-            String filePath = saveFile(file);  // Implement saveFile to handle file saving
-            existingDocument.setFilePath(filePath); // Update file path
-        }
-
-        // Save updated document
-        documentRepository.save(existingDocument);
-
-        return "redirect:/index"; // Redirect after save
-    }
-    private String saveFile(MultipartFile file) {
-        String fileName = file.getOriginalFilename();
-        String uploadDir = "uploads/documents/";
-
-        try {
-            java.nio.file.Path path = java.nio.file.Paths.get(uploadDir + fileName);
-            Files.createDirectories(path.getParent());
-            Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Failed to store file " + fileName, e);
-        }
-
-        return uploadDir + fileName;
-    }
-
-
-
+    
 
     @PostMapping("/edit-document/{id}")
     public String updateDocument(@PathVariable Long id, @ModelAttribute Document document) {

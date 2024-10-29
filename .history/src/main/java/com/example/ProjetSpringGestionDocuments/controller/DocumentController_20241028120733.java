@@ -180,21 +180,35 @@ public class DocumentController {
 
         return "redirect:/index"; // Redirect after save
     }
+<<<<<<< Tabnine <<<<<<<
     private String saveFile(MultipartFile file) {
-        String fileName = file.getOriginalFilename();
-        String uploadDir = "uploads/documents/";
+    String fileName = file.getOriginalFilename();//-
+    String uploadDir = "uploads/documents/";//-
+        String fileName = file.getOriginalFilename();//+
+        String uploadDir = "uploads/documents/";//+
 
-        try {
-            java.nio.file.Path path = java.nio.file.Paths.get(uploadDir + fileName);
-            Files.createDirectories(path.getParent());
-            Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Failed to store file " + fileName, e);
-        }
+    try {//-
+        Path path = Paths.get(uploadDir + fileName);//-
+        Files.createDirectories(path.getParent()); // Ensure directories exist//-
+        Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);//-
+    } catch (IOException e) {//-
+        e.printStackTrace();//-
+        throw new RuntimeException("Failed to store file " + fileName, e);//-
+    }//-
+        try {//+
+            java.nio.file.Path path = java.nio.file.Paths.get(uploadDir + fileName);//+
+            Files.createDirectories(path.getParent());//+
+            Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);//+
+        } catch (IOException e) {//+
+            e.printStackTrace();//+
+            throw new RuntimeException("Failed to store file " + fileName, e);//+
+        }//+
 
-        return uploadDir + fileName;
-    }
+    return uploadDir + fileName; // Return the relative path//-
+}//-
+        return uploadDir + fileName;//+
+    }//+
+>>>>>>> Tabnine >>>>>>>// {"conversationId":"9121f2b4-0fac-44a1-98ba-f4c9818ec78c","source":"instruct"}
 
 
 

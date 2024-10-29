@@ -1,10 +1,6 @@
 package com.example.ProjetSpringGestionDocuments.controller;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
@@ -180,22 +176,7 @@ public class DocumentController {
 
         return "redirect:/index"; // Redirect after save
     }
-    private String saveFile(MultipartFile file) {
-        String fileName = file.getOriginalFilename();
-        String uploadDir = "uploads/documents/";
-
-        try {
-            java.nio.file.Path path = java.nio.file.Paths.get(uploadDir + fileName);
-            Files.createDirectories(path.getParent());
-            Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Failed to store file " + fileName, e);
-        }
-
-        return uploadDir + fileName;
-    }
-
+    
 
 
 
