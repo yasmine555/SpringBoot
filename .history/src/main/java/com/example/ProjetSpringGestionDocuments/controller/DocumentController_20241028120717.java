@@ -1,10 +1,6 @@
 package com.example.ProjetSpringGestionDocuments.controller;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
@@ -47,6 +43,7 @@ public class DocumentController {
 
         return "index";
     }
+
     @PostMapping("/toggle-filter")
     public String toggleFilter(@RequestParam boolean showFilter, HttpSession session, Model model) {
         // Toggle the showFilter state in session
@@ -55,6 +52,7 @@ public class DocumentController {
 
         List<Document> documents = documentRepository.findTop10ByOrderByCreationDateDesc();
         model.addAttribute("documents", documents);
+
         // Check if the user is logged in
         Boolean isLoggedIn = (Boolean) session.getAttribute("isLoggedIn");
         model.addAttribute("isLoggedIn", isLoggedIn != null && isLoggedIn);
@@ -178,22 +176,7 @@ public class DocumentController {
 
         return "redirect:/index"; // Redirect after save
     }
-    private String saveFile(MultipartFile file) {
-        String fileName = file.getOriginalFilename();
-        String uploadDir = "uploads/documents/";
-
-        try {
-            java.nio.file.Path path = java.nio.file.Paths.get(uploadDir + fileName);
-            Files.createDirectories(path.getParent());
-            Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Failed to store file " + fileName, e);
-        }
-
-        return uploadDir + fileName;
-    }
-
+    
 
 
 

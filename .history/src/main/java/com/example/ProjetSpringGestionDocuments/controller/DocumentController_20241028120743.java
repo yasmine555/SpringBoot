@@ -47,6 +47,7 @@ public class DocumentController {
 
         return "index";
     }
+
     @PostMapping("/toggle-filter")
     public String toggleFilter(@RequestParam boolean showFilter, HttpSession session, Model model) {
         // Toggle the showFilter state in session
@@ -55,6 +56,7 @@ public class DocumentController {
 
         List<Document> documents = documentRepository.findTop10ByOrderByCreationDateDesc();
         model.addAttribute("documents", documents);
+
         // Check if the user is logged in
         Boolean isLoggedIn = (Boolean) session.getAttribute("isLoggedIn");
         model.addAttribute("isLoggedIn", isLoggedIn != null && isLoggedIn);

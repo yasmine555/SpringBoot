@@ -89,15 +89,16 @@
 </head>
 <body>
 
-    <div class="document-container" th:each="document : ${documents}">
-        <div class="document-header">
-            <div class="document-title" th:text="${document.title}">Document Title</div>
+<div class="document-container" th:each="document : ${documents}">
+    <div class="document-header">
+        <div class="document-title" th:text="${document.title}">Document Title</div>
         <div class="action-buttons">
             <button class="print-summary-button" onclick="printSummary()">Print Document Summary</button>
             <a th:href="@{/view-document-content/{id}(id=${document.id})}" target="_blank" class="view-button">View Content</a>
         </div>
     </div>
 
+    <div class="document-info">
         <div class="document-field">
             <label>Author:</label>
             <p th:text="${document.author}">Author Name</p>

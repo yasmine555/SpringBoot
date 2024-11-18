@@ -175,15 +175,11 @@
     <div class="sidebar">
         <h1>Document Management System</h1>
         <!-- Add, Modify, Delete Buttons -->
-        <h1>Document Management System</h1>
-
-<!-- Add Document Button (displayed once) -->
         <div th:if="${isLoggedIn}">
             <form th:action="@{/add-document}" method="get">
                 <button type="submit" class="admin-button">Add Document</button>
             </form>
-
-            <!-- Document-specific Modify/Delete buttons (displayed for each document) -->
+        
             <div th:each="document : ${documents}">
                 <form th:action="@{/edit-document/{id}(id=${document.id})}" method="get" style="display:inline;">
                     <button type="submit" class="admin-button">Modify Document</button>
@@ -192,8 +188,7 @@
                     <button type="submit" class="admin-button" onclick="return confirm('Are you sure you want to delete this document?');">Delete Document</button>
                 </form>
             </div>
-        </div>
-      
+        </div>        
     </div>
     
 
@@ -287,21 +282,22 @@
         </div>
 
         <!-- Recent Documents Section -->
-        <form th:action="@{/view-document}" method="get">
+        <div class="recent-docs">
+            <h2>Recent Documents</h2>
             <div th:each="document : ${documents}">
                 <div class="doc-item">
-                    <input type="radio" class="doc-radio" id="doc-${document.id}" name="selectedDocument" th:value="${document.id}" required>
-                    <label class="doc-label" for="doc-${document.id}">
-                        <span class="doc-title" th:text="${document.title}"></span> | 
-                        <span class="doc-author" th:text="${document.author}"></span>
-                        <span class="doc-summary" th:text="${#strings.abbreviate(document.summary, 200)}"></span>
+                    <input type="radio" class="doc-radio" id="doc-[[${document.id}]]" name="selectedDocument" value="[[${document.id}]]">
+                    <label class="doc-label" for="doc-[[${document.id}]]">
+                        <span class="doc-title">[[${document.title}]]</span> | 
+                        <span class="doc-author">[[${document.author}]]</span>
+                        <span class="doc-summary">
+                            [[${#strings.abbreviate(document.summary, 200)}]]
+                        </span>
+                        <a class="view-btn" th:href="@{/doc/{id}(id=${document.id})}">View</a>
                     </label>
                 </div>
-            </div>            
-            <button type="submit" class="view-btn">View Selected Document</button>
-        </form>
-        
-        
+            </div>
+        </div>
 
 
 
