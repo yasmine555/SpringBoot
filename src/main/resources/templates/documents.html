@@ -2,147 +2,85 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Document Details</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            color: #333;
-            padding: 20px;
-        }
-
-        .document-container {
-            max-width: 1000px;
-            margin: 0 auto;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-        }
-
-        .document-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 20px;
-        }
-
-        .document-title {
-            font-size: 24px;
-            font-weight: bold;
-            color: #333;
-        }
-
-        .document-info {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-
-        .document-field {
-            flex: 1 1 45%;
-        }
-
-        .document-field label {
-            font-weight: bold;
-            color: #555;
-        }
-
-        .document-field p {
-            margin: 5px 0 15px;
-            color: #666;
-        }
-
-        .action-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .action-buttons button,
-        .action-buttons a {
-            text-decoration: none;
-            padding: 10px 15px;
-            color: #fff;
-            border-radius: 5px;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .view-button {
-            background-color: #007bff;
-        }
-
-        .print-summary-button {
-            background-color: #28a745;
-        }
-
-        .view-button:hover {
-            background-color: #0056b3;
-        }
-
-        .print-summary-button:hover {
-            background-color: #218838;
-        }
-    </style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
+<body class="bg-light">
+    <div class="container mt-5">
+        <!-- Section pour afficher les détails du document -->
+        <div class="document-container bg-white p-4 shadow-sm rounded">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="document-title text-primary" th:text="${document.title}">Document Title</h2>
+                <div class="action-buttons">
+                    <button class="btn btn-success" onclick="printSummary()">Print Document Summary</button>
+                    <a th:href="@{/view-document-content/{id}(id=${document.id})}" target="_blank" class="btn btn-info">View Content</a>
+                </div>
+            </div>
 
-    <div class="document-container" th:each="document : ${documents}">
-        <div class="document-header">
-            <div class="document-title" th:text="${document.title}">Document Title</div>
-        <div class="action-buttons">
-            <button class="print-summary-button" onclick="printSummary()">Print Document Summary</button>
-            <a th:href="@{/view-document-content/{id}(id=${document.id})}" target="_blank" class="view-button">View Content</a>
+            <div class="row mb-3">
+                <div class="col-md-6 document-field">
+                    <label class="fw-bold">Author:</label>
+                    <p th:text="${document.author}">Author Name</p>
+                </div>
+                <div class="col-md-6 document-field">
+                    <label class="fw-bold">Genre:</label>
+                    <p th:text="${document.genre}">Genre Info</p>
+                </div>
+                <div class="col-md-6 document-field">
+                    <label class="fw-bold">Type:</label>
+                    <p th:text="${document.type}">Type Info</p>
+                </div>
+                <div class="col-md-6 document-field">
+                    <label class="fw-bold">Language:</label>
+                    <p th:text="${document.language}">Language Info</p>
+                </div>
+                <div class="col-12 document-field">
+                    <label class="fw-bold">Summary:</label>
+                    <p th:text="${document.summary}">Summary content goes here...</p>
+                </div>
+                <div class="col-md-6 document-field">
+                    <label class="fw-bold">Publish Date:</label>
+                    <p th:text="${#dates.format(document.publishDate, 'yyyy-MM-dd')}">Publish Date</p>
+                </div>
+                <div class="col-md-6 document-field">
+                    <label class="fw-bold">Page Count:</label>
+                    <p th:text="${document.pageCount}">Page Count</p>
+                </div>
+                <div class="col-md-6 document-field">
+                    <label class="fw-bold">File Format:</label>
+                    <p th:text="${document.fileFormat}">File Format</p>
+                </div>
+                <div class="col-md-6 document-field">
+                    <label class="fw-bold">Document ID:</label>
+                    <p th:text="${document.id}">Document ID</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section pour afficher les fichiers du répertoire DocumentUploads -->
+        <div class="document-container bg-white p-4 shadow-sm rounded mt-5">
+            <h3 class="text-primary">Uploaded Files</h3>
+            <div class="row">
+                <div class="col-12">
+                    <ul class="list-group">
+                        <li th:each="fileName : ${fileNames}" class="list-group-item">
+                            <a th:href="@{'/DocumentUploads/' + ${fileName}}" th:text="${fileName}" target="_blank"></a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </div>
-
-        <div class="document-field">
-            <label>Author:</label>
-            <p th:text="${document.author}">Author Name</p>
-        </div>
-        <div class="document-field">
-            <label>Genre:</label>
-            <p th:text="${document.genre}">Genre Info</p>
-        </div>
-        <div class="document-field">
-            <label>Type:</label>
-            <p th:text="${document.type}">Type Info</p>
-        </div>
-        <div class="document-field">
-            <label>Language:</label>
-            <p th:text="${document.language}">Language Info</p>
-        </div>
-        <div class="document-field" style="flex: 1 1 100%;">
-            <label>Summary:</label>
-            <p th:text="${document.summary}">Summary content goes here...</p>
-        </div>
-        <div class="document-field">
-            <label>Publish Date:</label>
-            <p th:text="${#dates.format(document.publishDate, 'yyyy-MM-dd')}">Publish Date</p>
-        </div>
-        <div class="document-field">
-            <label>Page Count:</label>
-            <p th:text="${document.pageCount}">Page Count</p>
-        </div>
-        <div class="document-field">
-            <label>File Format:</label>
-            <p th:text="${document.fileFormat}">File Format</p>
-        </div>
-        <div class="document-field">
-            <label>Document ID:</label>
-            <p th:text="${document.id}">Document ID</p>
-        </div>
+    <div th:if="${successMessage}" class="alert alert-success" role="alert">
+        <span th:text="${successMessage}"></span>
     </div>
-</div>
-
-<script>
-    function printSummary() {
-        window.print();
-    }
-</script>
-
+    <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+        <span th:text="${errorMessage}"></span>
+    </div>
+    
+    <script>
+        function printSummary() {
+            window.print();
+        }
+    </script>
 </body>
 </html>
-

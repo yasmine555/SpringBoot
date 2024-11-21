@@ -1,11 +1,11 @@
-package com.example.ProjetSpringGestionDocuments.controller;
+package com.example.ProjetSpringGestionDocuments.Web.controller;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -14,23 +14,19 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.example.ProjetSpringGestionDocuments.Repository.DocumentRepository;
-import com.example.ProjetSpringGestionDocuments.model.Document;
+import com.example.ProjetSpringGestionDocuments.DAO.Repository.DocumentRepository;
+import com.example.ProjetSpringGestionDocuments.DAO.models.Document;
 
 import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class DocumentController {
     @Value("${upload.dir}")
-    private String uploadDir; // Path to upload directory
-
+    private String uploadDir; 
     @Autowired
     private DocumentRepository documentRepository;
 
@@ -68,62 +64,62 @@ public class DocumentController {
         if ("admin".equals(username) && "adminpassword".equals(password)) {
             session.setAttribute("isLoggedIn", true);
         }
-        return "redirect:/"; // Redirect to the index page after login
+        return "redirect:/"; 
     }
 
     @PostMapping("/logout")
     public String logout(HttpSession session) {
-        session.invalidate(); // Invalidate the session
-        return "redirect:/"; // Redirect to the index page after logout
+        session.invalidate(); 
+        return "redirect:/"; 
     }
 
-    @GetMapping("/add-document") // method to show the add document form
+    @GetMapping("/add-document") 
     public String showAddDocumentPage(Model model, HttpSession session) {
         // Check if the user is logged in
         Boolean isLoggedIn = (Boolean) session.getAttribute("isLoggedIn");
         model.addAttribute("isLoggedIn", isLoggedIn != null && isLoggedIn);
 
-        return "AddDocument"; // Return the name of the HTML template (without .html)
+        return "AddDocument"; 
     }
 
     @PostMapping("/add-document")
-    public String addDocument(@RequestParam String title, @RequestParam String author,
-            @RequestParam String genre, @RequestParam String type,
-            @RequestParam String language, @RequestParam String summary,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate publish_date, // consider using
-                                                                                                 // LocalDate
-            @RequestParam int page_count, @RequestParam String file_format,
-            @RequestParam("documentFile") MultipartFile documentFile,
-            Model model) {
-        try {
-            Document document = new Document();
-            document.setTitle(title);
-            document.setAuthor(author);
-            document.setGenre(genre);
-            document.setType(type);
-            document.setLanguage(language);
-            document.setSummary(summary);
-            document.setPublishDate(java.sql.Date.valueOf(publish_date)); // convert LocalDate to java.sql.Date
-            document.setPageCount(page_count);
-            document.setFileFormat(file_format);
-
-            // Handle file upload
-            if (!documentFile.isEmpty()) {
-                String file_path = uploadDir + File.separator + documentFile.getOriginalFilename();
-                documentFile.transferTo(new File(file_path));
-                document.setFilePath(file_path);
-            }
-
-            document.setCreationDate(new Date());
-            documentRepository.save(document);
-
-            return "redirect:/"; // Redirect after successful upload
-        } catch (Exception e) {
-            // Log the error with more context if possible
-            model.addAttribute("errorMessage", "Error uploading document: " + e.getMessage());
-            return "AddDocument"; // Return to the add document form with error
+public String addDocument(
+        @RequestParam String title,
+        @RequestParam String author,
+        @RequestParam String Theme,
+        @RequestParam String file_format,
+        @RequestParam("documentFile") MultipartFile documentFile,
+        @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate publish_date,
+        RedirectAttributes redirectAttributes) { 
+    try {
+        if (documentFile.isEmpty()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Veuillez sélectionner un fichier.");
+            return "redirect:/add-document"; 
         }
+
+        // Création de l'objet Document
+        Document document = new Document();
+        document.setTitle(title);
+        document.setAuthor(author);
+        document.setTheme(Theme);
+        document.setFileFormat(file_format);
+        document.setPublishDate(java.sql.Date.valueOf(publish_date));
+
+        // Sauvegarde du fichier
+        String filePath = uploadDir + File.separator + documentFile.getOriginalFilename();
+        documentFile.transferTo(new File(filePath));
+        document.setFilePath(filePath);
+
+        document.setCreationDate(new Date());
+        documentRepository.save(document);
+
+        redirectAttributes.addFlashAttribute("successMessage", "Document ajouté avec succès !");
+        return "redirect:/documents"; 
+    } catch (Exception e) {
+        redirectAttributes.addFlashAttribute("errorMessage", "Erreur lors de l'ajout du document : " + e.getMessage());
+        return "redirect:/add-document"; 
     }
+}
 
     @GetMapping("/view-document")
     public String viewDocument(@RequestParam("selectedDocument") Long documentId, Model model) {
@@ -132,10 +128,29 @@ public class DocumentController {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid document ID: " + documentId));
         // Pass the document details to the view
         model.addAttribute("documents", List.of(document)); 
-        return "documents"; // The Thymeleaf template that displays document details
+        return "documents"; 
+    }
+    @GetMapping("/documents")
+    public String listDocuments(Model model) {
+        // Récupérer les documents depuis la base de données
+        List<Document> documents = documentRepository.findAll();
+        model.addAttribute("documents", documents);
+    
+        // Lire les fichiers depuis le répertoire "upload.dir"
+        List<String> fileNames = new ArrayList<>();
+        File directory = new File(uploadDir); // Utiliser le chemin défini dans @Value("${upload.dir}")
+        if (directory.exists() && directory.isDirectory()) {
+            for (File file : directory.listFiles()) {
+                if (file.isFile()) {
+                    fileNames.add(file.getName());
+                }
+            }
+        }
+        model.addAttribute("fileNames", fileNames); // Ajouter la liste des fichiers au modèle
+    
+        return "ListeDocument"; // Retourner la vue
     }
     
-
 
     @GetMapping("/edit-document/{id}")
     public String showEditDocumentPage(@PathVariable Long id, Model model) {
@@ -147,8 +162,8 @@ public class DocumentController {
         model.addAttribute("document", document);
         return "editDocument";
     }
-    @PostMapping("/edit-document/{id}")
-    public String updateDocument(@PathVariable("id") Long documentId, 
+    @PostMapping("/edit-document/{id}/with-file")
+    public String updateDocumentWithFile(@PathVariable("id") Long documentId, 
                                 @ModelAttribute("document") Document document,
                                 @RequestParam("documentFile") MultipartFile file) {
         // Retrieve the existing document from the database
@@ -158,7 +173,6 @@ public class DocumentController {
         // Update fields from the form
         existingDocument.setTitle(document.getTitle());
         existingDocument.setAuthor(document.getAuthor());
-        existingDocument.setGenre(document.getGenre());
         existingDocument.setType(document.getType());
         existingDocument.setLanguage(document.getLanguage());
         existingDocument.setSummary(document.getSummary());
@@ -176,7 +190,7 @@ public class DocumentController {
         // Save updated document
         documentRepository.save(existingDocument);
 
-        return "redirect:/index"; // Redirect after save
+        return "ListeDocument"; // Redirect after save
     }
     private String saveFile(MultipartFile file) {
         String fileName = file.getOriginalFilename();
@@ -195,8 +209,6 @@ public class DocumentController {
     }
 
 
-
-
     @PostMapping("/edit-document/{id}")
     public String updateDocument(@PathVariable Long id, @ModelAttribute Document document) {
         documentRepository.save(document);
@@ -206,8 +218,28 @@ public class DocumentController {
     @GetMapping("/delete-document/{id}")
     public String deleteDocument(@PathVariable Long id) {
         documentRepository.deleteById(id);
-        return "redirect:/documents";
+        return "ListeDocument";
     }
 
+     // Recherche par titre
+     @GetMapping("/search")
+     public String searchDocumentsByTitle(@RequestParam(required = false) String title,
+                                          @RequestParam(required = false) String author,
+                                          @RequestParam(required = false) String genre,
+                                          Model model) {
+         List<Document> documents;
+ 
+         //recherche par: Titre, Auteur
+         if (title != null && !title.isEmpty()) {
+             documents = documentRepository.findByTitleContaining(title);
+         } else if (author != null && !author.isEmpty()) {
+             documents = documentRepository.findByAuthorContaining(author);
+         }  else {
+             documents = documentRepository.findAll(); 
+         }
+ 
+         model.addAttribute("documents", documents); 
+         return "ListeDocument"; 
+     }
     // Remaining methods for filtering, updating, etc.
 }
