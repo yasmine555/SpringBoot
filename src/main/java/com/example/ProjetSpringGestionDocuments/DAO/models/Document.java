@@ -7,8 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "infodoc")
-@Data 
+@Table(name = "infodocument")
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Document {
@@ -56,4 +56,8 @@ public class Document {
 
     @Column(name = "file_path", length = 250, nullable = false)
     private String filePath;
+
+    @Column(name = "Keywords", length = 500)
+    private String keywords;
+
 }

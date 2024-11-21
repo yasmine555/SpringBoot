@@ -1,13 +1,17 @@
+package com.example.ProjetSpringGestionDocuments.business.servicesimpl;
+
+import com.example.ProjetSpringGestionDocuments.DAO.models.Document;
+import com.example.ProjetSpringGestionDocuments.business.services.DocumentService;
+import com.example.ProjetSpringGestionDocuments.DAO.Repository.DocumentRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-import com.example.ProjetSpringGestionDocuments.Repository.DocumentRepository;
-import com.example.ProjetSpringGestionDocuments.models.Document;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Date;
 import java.util.List;
 
@@ -15,7 +19,9 @@ import java.util.List;
 public class DocumentServiceImpl implements DocumentService {
 
     private final DocumentRepository documentRepository;
-    private final String uploadDir = "DocumentUploadsdirectory/";
+
+    @Value("${upload.dir:uploads/}")
+    private String uploadDir;
 
     public DocumentServiceImpl(DocumentRepository documentRepository) {
         this.documentRepository = documentRepository;
@@ -37,25 +43,26 @@ public class DocumentServiceImpl implements DocumentService {
         if (file != null && !file.isEmpty()) {
             String fileName = file.getOriginalFilename();
             Path filePath = Paths.get(uploadDir, fileName);
-    
-            // Validation stricte
-            if (!Files.isDirectory(filePath.getParent())) {
-                Files.createDirectories(filePath.getParent());
-            }
-    
+
+            // Création des répertoires si nécessaire
+            Files.createDirectories(filePath.getParent());
+
+            // Sauvegarde du fichier
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+            // Mise à jour du chemin dans l'objet Document
             document.setFilePath(filePath.toString());
         }
+
         document.setCreationDate(new Date());
         documentRepository.save(document);
     }
-    
 
     @Override
     public void updateDocument(Long id, Document updatedDocument, MultipartFile file) throws IOException {
         Document existingDocument = getDocumentById(id);
 
-        // Met à jour les informations
+        // Mise à jour des informations principales
         existingDocument.setTitle(updatedDocument.getTitle());
         existingDocument.setAuthor(updatedDocument.getAuthor());
         existingDocument.setType(updatedDocument.getType());
@@ -66,12 +73,14 @@ public class DocumentServiceImpl implements DocumentService {
         existingDocument.setFileFormat(updatedDocument.getFileFormat());
         existingDocument.setModificationDate(new Date());
 
-        // Met à jour le fichier si nécessaire
-        if (!file.isEmpty()) {
+        // Mise à jour du fichier si présent
+        if (file != null && !file.isEmpty()) {
             String fileName = file.getOriginalFilename();
             Path filePath = Paths.get(uploadDir, fileName);
+
             Files.createDirectories(filePath.getParent());
-            Files.copy(file.getInputStream(), filePath);
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
             existingDocument.setFilePath(filePath.toString());
         }
 
@@ -80,6 +89,9 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public void deleteDocument(Long id) {
+        if (!documentRepository.existsById(id)) {
+            throw new RuntimeException("Le document avec l'ID " + id + " n'existe pas.");
+        }
         documentRepository.deleteById(id);
     }
 
