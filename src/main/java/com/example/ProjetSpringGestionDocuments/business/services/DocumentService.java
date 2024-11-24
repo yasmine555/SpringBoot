@@ -1,7 +1,8 @@
 package com.example.ProjetSpringGestionDocuments.business.services;
 
-import com.example.ProjetSpringGestionDocuments.DAO.models.Document;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.example.ProjetSpringGestionDocuments.DAO.Entity.Document;
 
 import java.io.IOException;
 import java.util.List;

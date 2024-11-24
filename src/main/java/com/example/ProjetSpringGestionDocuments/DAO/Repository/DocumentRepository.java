@@ -3,7 +3,7 @@ package com.example.ProjetSpringGestionDocuments.DAO.Repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.example.ProjetSpringGestionDocuments.DAO.models.Document;
+import com.example.ProjetSpringGestionDocuments.DAO.Entity.Document;
 
 import java.util.List;
 

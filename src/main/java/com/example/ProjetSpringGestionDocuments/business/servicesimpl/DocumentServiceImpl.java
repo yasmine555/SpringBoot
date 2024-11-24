@@ -1,7 +1,7 @@
 package com.example.ProjetSpringGestionDocuments.business.servicesimpl;
 
-import com.example.ProjetSpringGestionDocuments.DAO.models.Document;
 import com.example.ProjetSpringGestionDocuments.business.services.DocumentService;
+import com.example.ProjetSpringGestionDocuments.DAO.Entity.Document;
 import com.example.ProjetSpringGestionDocuments.DAO.Repository.DocumentRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

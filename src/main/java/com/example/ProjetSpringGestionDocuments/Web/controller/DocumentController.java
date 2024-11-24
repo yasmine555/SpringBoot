@@ -4,29 +4,33 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
+import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.example.ProjetSpringGestionDocuments.DAO.Entity.Document;
 import com.example.ProjetSpringGestionDocuments.DAO.Repository.DocumentRepository;
-import com.example.ProjetSpringGestionDocuments.DAO.models.Document;
+import com.example.ProjetSpringGestionDocuments.Web.model.DocumentForm;
 
 import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class DocumentController {
+    private static final Logger logger = LoggerFactory.getLogger(DocumentController.class);
+
     @Value("${upload.dir}")
-    private String uploadDir; 
+    private String uploadDir;
     @Autowired
     private DocumentRepository documentRepository;
 
@@ -43,9 +47,9 @@ public class DocumentController {
 
         return "index";
     }
+
     @PostMapping("/toggle-filter")
     public String toggleFilter(@RequestParam boolean showFilter, HttpSession session, Model model) {
-        // Toggle the showFilter state in session
         session.setAttribute("showFilter", !showFilter);
         model.addAttribute("showFilter", !showFilter);
 
@@ -64,62 +68,67 @@ public class DocumentController {
         if ("admin".equals(username) && "adminpassword".equals(password)) {
             session.setAttribute("isLoggedIn", true);
         }
-        return "redirect:/"; 
+        return "redirect:/";
     }
 
     @PostMapping("/logout")
     public String logout(HttpSession session) {
-        session.invalidate(); 
-        return "redirect:/"; 
+        session.invalidate();
+        return "redirect:/";
     }
 
-    @GetMapping("/add-document") 
-    public String showAddDocumentPage(Model model, HttpSession session) {
-        // Check if the user is logged in
-        Boolean isLoggedIn = (Boolean) session.getAttribute("isLoggedIn");
-        model.addAttribute("isLoggedIn", isLoggedIn != null && isLoggedIn);
-
-        return "AddDocument"; 
+    @GetMapping("/add-document")
+    public String showAddDocumentPage(Model model) {
+        // Prépare un objet vide pour lier les champs du formulaire
+        model.addAttribute("documentForm", new DocumentForm());
+        return "AddDocument"; // Retourne la vue correspondante
     }
 
     @PostMapping("/add-document")
 public String addDocument(
-        @RequestParam String title,
-        @RequestParam String author,
-        @RequestParam String Theme,
-        @RequestParam String file_format,
+        @Valid
+        @ModelAttribute("documentForm") DocumentForm documentForm,
+        BindingResult bindingResult,
         @RequestParam("documentFile") MultipartFile documentFile,
-        @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate publish_date,
-        RedirectAttributes redirectAttributes) { 
-    try {
-        if (documentFile.isEmpty()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Veuillez sélectionner un fichier.");
-            return "redirect:/add-document"; 
-        }
+        RedirectAttributes redirectAttributes) {
 
-        // Création de l'objet Document
-        Document document = new Document();
-        document.setTitle(title);
-        document.setAuthor(author);
-        document.setTheme(Theme);
-        document.setFileFormat(file_format);
-        document.setPublishDate(java.sql.Date.valueOf(publish_date));
+    try {
+        logger.info("Début de l'ajout d'un document.");
+        
+        if (documentFile.isEmpty()) {
+            logger.error("Le fichier est vide.");
+            throw new IllegalArgumentException("Veuillez sélectionner un fichier à télécharger.");
+        }
 
         // Sauvegarde du fichier
         String filePath = uploadDir + File.separator + documentFile.getOriginalFilename();
         documentFile.transferTo(new File(filePath));
+        logger.info("Fichier sauvegardé à l'emplacement : " + filePath);
+
+        // Créer l'objet Document
+        Document document = new Document();
+        document.setTitle(documentForm.getTitle());
+        document.setAuthor(documentForm.getAuthor());
+        document.setTheme(documentForm.getTheme());
+        document.setLanguage(documentForm.getLanguage()); 
+        document.setFileFormat(documentForm.getFileFormat());
+        document.setPublishDate(java.sql.Date.valueOf(documentForm.getPublishDate()));
         document.setFilePath(filePath);
-
         document.setCreationDate(new Date());
-        documentRepository.save(document);
 
+        // Sauvegarde dans la base de données
+        documentRepository.save(document);
+        logger.info("Document sauvegardé dans la base de données.");
         redirectAttributes.addFlashAttribute("successMessage", "Document ajouté avec succès !");
-        return "redirect:/documents"; 
+        return "redirect:/documents";
+
     } catch (Exception e) {
-        redirectAttributes.addFlashAttribute("errorMessage", "Erreur lors de l'ajout du document : " + e.getMessage());
-        return "redirect:/add-document"; 
+        logger.error("Erreur lors de l'ajout du document : ", e);
+        redirectAttributes.addFlashAttribute("error", "Erreur : " + e.getMessage());
+        return "redirect:/add-document";
     }
 }
+
 
     @GetMapping("/view-document")
     public String viewDocument(@RequestParam("selectedDocument") Long documentId, Model model) {
@@ -127,15 +136,16 @@ public String addDocument(
         Document document = documentRepository.findById(documentId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid document ID: " + documentId));
         // Pass the document details to the view
-        model.addAttribute("documents", List.of(document)); 
-        return "documents"; 
+        model.addAttribute("documents", List.of(document));
+        return "documents";
     }
+
     @GetMapping("/documents")
     public String listDocuments(Model model) {
         // Récupérer les documents depuis la base de données
         List<Document> documents = documentRepository.findAll();
         model.addAttribute("documents", documents);
-    
+
         // Lire les fichiers depuis le répertoire "upload.dir"
         List<String> fileNames = new ArrayList<>();
         File directory = new File(uploadDir); // Utiliser le chemin défini dans @Value("${upload.dir}")
@@ -147,10 +157,9 @@ public String addDocument(
             }
         }
         model.addAttribute("fileNames", fileNames); // Ajouter la liste des fichiers au modèle
-    
+
         return "ListeDocument"; // Retourner la vue
     }
-    
 
     @GetMapping("/edit-document/{id}")
     public String showEditDocumentPage(@PathVariable Long id, Model model) {
@@ -162,10 +171,11 @@ public String addDocument(
         model.addAttribute("document", document);
         return "editDocument";
     }
+
     @PostMapping("/edit-document/{id}/with-file")
-    public String updateDocumentWithFile(@PathVariable("id") Long documentId, 
-                                @ModelAttribute("document") Document document,
-                                @RequestParam("documentFile") MultipartFile file) {
+    public String updateDocumentWithFile(@PathVariable("id") Long documentId,
+            @ModelAttribute("document") Document document,
+            @RequestParam("documentFile") MultipartFile file) {
         // Retrieve the existing document from the database
         Document existingDocument = documentRepository.findById(documentId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid document ID: " + documentId));
@@ -183,7 +193,7 @@ public String addDocument(
 
         // Handle file upload if a new file is provided
         if (!file.isEmpty()) {
-            String filePath = saveFile(file);  // Implement saveFile to handle file saving
+            String filePath = saveFile(file); // Implement saveFile to handle file saving
             existingDocument.setFilePath(filePath); // Update file path
         }
 
@@ -192,9 +202,10 @@ public String addDocument(
 
         return "ListeDocument"; // Redirect after save
     }
+
     private String saveFile(MultipartFile file) {
         String fileName = file.getOriginalFilename();
-        String uploadDir = "uploads/documents/";
+        String uploadDir = "/DocumentUploadsdirectory";
 
         try {
             java.nio.file.Path path = java.nio.file.Paths.get(uploadDir + fileName);
@@ -208,7 +219,6 @@ public String addDocument(
         return uploadDir + fileName;
     }
 
-
     @PostMapping("/edit-document/{id}")
     public String updateDocument(@PathVariable Long id, @ModelAttribute Document document) {
         documentRepository.save(document);
@@ -221,25 +231,25 @@ public String addDocument(
         return "ListeDocument";
     }
 
-     // Recherche par titre
-     @GetMapping("/search")
-     public String searchDocumentsByTitle(@RequestParam(required = false) String title,
-                                          @RequestParam(required = false) String author,
-                                          @RequestParam(required = false) String genre,
-                                          Model model) {
-         List<Document> documents;
- 
-         //recherche par: Titre, Auteur
-         if (title != null && !title.isEmpty()) {
-             documents = documentRepository.findByTitleContaining(title);
-         } else if (author != null && !author.isEmpty()) {
-             documents = documentRepository.findByAuthorContaining(author);
-         }  else {
-             documents = documentRepository.findAll(); 
-         }
- 
-         model.addAttribute("documents", documents); 
-         return "ListeDocument"; 
-     }
+    // Recherche par titre
+    @GetMapping("/search")
+    public String searchDocumentsByTitle(@RequestParam(required = false) String title,
+            @RequestParam(required = false) String author,
+            @RequestParam(required = false) String genre,
+            Model model) {
+        List<Document> documents;
+
+        // recherche par: Titre, Auteur
+        if (title != null && !title.isEmpty()) {
+            documents = documentRepository.findByTitleContaining(title);
+        } else if (author != null && !author.isEmpty()) {
+            documents = documentRepository.findByAuthorContaining(author);
+        } else {
+            documents = documentRepository.findAll();
+        }
+
+        model.addAttribute("documents", documents);
+        return "ListeDocument";
+    }
     // Remaining methods for filtering, updating, etc.
 }
