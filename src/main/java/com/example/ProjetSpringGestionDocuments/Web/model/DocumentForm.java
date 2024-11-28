@@ -2,6 +2,9 @@ package com.example.ProjetSpringGestionDocuments.Web.model;
 
 import java.time.LocalDate;
 
+import com.example.ProjetSpringGestionDocuments.DAO.Entity.Author;
+import com.example.ProjetSpringGestionDocuments.DAO.Entity.Category;
+
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,12 +20,24 @@ public class DocumentForm {
     @NotBlank(message = "Le titre est obligatoire.")
     private String title;
 
-    @NotBlank(message = "L'auteur est obligatoire.")
-    private String author;
+    @NotBlank(message = "L'ID de l'auteur est obligatoire.")
+    private Long author_id;
 
+    @NotBlank(message = "L'ID de la catégorie est obligatoire.")
+    private Long category_id;
+
+    @NotBlank
     private String theme;
+
+    @NotBlank
     private String fileFormat;
-    @NotBlank(message = "La date de publication est obligatoire.")
+
     private LocalDate publishDate;
+
     private String language;
+
+    private String summary;
+
+    private String keywords;
+
 }

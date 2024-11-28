@@ -54,7 +54,7 @@ public class DocumentServiceImpl implements DocumentService {
             document.setFilePath(filePath.toString());
         }
 
-        document.setCreationDate(new Date());
+       
         documentRepository.save(document);
     }
 
@@ -65,13 +65,11 @@ public class DocumentServiceImpl implements DocumentService {
         // Mise à jour des informations principales
         existingDocument.setTitle(updatedDocument.getTitle());
         existingDocument.setAuthor(updatedDocument.getAuthor());
-        existingDocument.setType(updatedDocument.getType());
         existingDocument.setLanguage(updatedDocument.getLanguage());
         existingDocument.setSummary(updatedDocument.getSummary());
         existingDocument.setPublishDate(updatedDocument.getPublishDate());
-        existingDocument.setPageCount(updatedDocument.getPageCount());
         existingDocument.setFileFormat(updatedDocument.getFileFormat());
-        existingDocument.setModificationDate(new Date());
+        
 
         // Mise à jour du fichier si présent
         if (file != null && !file.isEmpty()) {
@@ -99,9 +97,10 @@ public class DocumentServiceImpl implements DocumentService {
     public List<Document> searchDocumentsByTitleOrAuthor(String title, String author) {
         if (title != null && !title.isEmpty()) {
             return documentRepository.findByTitleContaining(title);
-        } else if (author != null && !author.isEmpty()) {
+        }/*  else if (author != null && !author.isEmpty()) {
             return documentRepository.findByAuthorContaining(author);
-        } else {
+        } */
+            else {
             return documentRepository.findAll();
         }
     }

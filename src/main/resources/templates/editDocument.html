@@ -1,69 +1,113 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Document</title>
+    <title>Modifier un Document</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-light">
     <div class="container mt-5">
-        <form th:action="@{/edit-document/{id}/with-file(id=${document.id})}" method="post" enctype="multipart/form-data" class="document-form bg-white p-4 shadow-sm rounded">
-            <h2>Edit Document</h2>
+        <h1 class="text-center mb-4">Modifier un Document</h1>
+        
+        <!-- Affichage des messages d'erreur -->
+        <div th:if="${error}" style="color: red;">
+            <p th:text="${error}"></p>
+        </div>
 
+        <!-- Formulaire pour modifier un document -->
+        <form th:action="@{/document/edit/{id}/with-file(id=${document.id})}" method="post" enctype="multipart/form-data" class="document-form bg-white p-4 shadow-sm rounded">
+            <!-- Titre -->
             <div class="mb-3">
-                <label for="title" class="form-label">Title:</label>
-                <input type="text" id="title" name="title" th:value="${document.title}" class="form-control" required>
+                <label for="title" class="form-label">Titre :</label>
+                <input type="text" id="title" name="title" th:value="${document.title}" class="form-control" placeholder="Entrez le titre du document" required>
             </div>
 
+            <!-- Auteur -->
             <div class="mb-3">
-                <label for="author" class="form-label">Author:</label>
-                <input type="text" id="author" name="author" th:value="${document.author}" class="form-control" required>
+                <label for="author" class="form-label">Auteur :</label>
+                <input type="text" id="author" name="author" class="form-control" 
+                placeholder="Entrez le nom de l'auteur" 
+                th:value="${document.author?.name}" required>
             </div>
 
+            
+            
+            <!-- Catégorie -->
             <div class="mb-3">
-                <label for="genre" class="form-label">Genre:</label>
-                <input type="text" id="genre" name="genre" th:value="${document.genre}" class="form-control" required>
+                <label for="category" class="form-label">Catégorie :</label>
+                <select id="category" name="category" class="form-select" required>
+                    <option value="" disabled>Choisissez une catégorie</option>
+                    <option th:each="category : ${categories}" 
+                            th:value="${category.id}" 
+                            th:text="${category.name}" 
+                            th:selected="${document.category.id == category.id}">
+                    </option>
+                </select>
+            </div>
+            
+            
+            <!-- Thème -->
+            <div class="mb-3">
+                <label for="theme" class="form-label">Thème :</label>
+                <input type="text" id="theme" name="theme" th:value="${document.theme}" class="form-control" placeholder="Entrez le thème du document" required>
             </div>
 
+            <!-- Résumé -->
             <div class="mb-3">
-                <label for="type" class="form-label">Type:</label>
-                <input type="text" id="type" name="type" th:value="${document.type}" class="form-control" required>
+                <label for="summary" class="form-label">Résumé :</label>
+                <textarea id="summary" name="summary" th:text="${document.summary}" class="form-control" rows="4" placeholder="Entrez un résumé du document"></textarea>
             </div>
 
+            <!-- Mots-Clés -->
             <div class="mb-3">
-                <label for="language" class="form-label">Language:</label>
-                <input type="text" id="language" name="language" th:value="${document.language}" class="form-control" required>
+                <label for="keywords" class="form-label">Mots-Clés :</label>
+                <input type="text" id="keywords" name="keywords" th:value="${document.keywords}" class="form-control" placeholder="Entrez les mots-clés (séparés par des virgules)">
             </div>
 
+            <!-- Date de Publication -->
             <div class="mb-3">
-                <label for="summary" class="form-label">Summary:</label>
-                <textarea id="summary" name="summary" th:text="${document.summary}" class="form-control" required></textarea>
-            </div>
-
-            <div class="mb-3">
-                <label for="publish_date" class="form-label">Publish Date:</label>
+                <label for="publish_date" class="form-label">Date de Publication :</label>
                 <input type="date" id="publish_date" name="publish_date" th:value="${#dates.format(document.publishDate, 'yyyy-MM-dd')}" class="form-control" required>
             </div>
 
+            <!-- Langue -->
             <div class="mb-3">
-                <label for="page_count" class="form-label">Page Count:</label>
-                <input type="number" id="page_count" name="page_count" th:value="${document.pageCount}" class="form-control" required>
+                <label for="language" class="form-label">Langue :</label>
+                <input type="text" id="language" name="language" th:value="${document.language}" class="form-control" placeholder="Entrez la langue (ex : Français)" required>
             </div>
 
+            <!-- Format du fichier -->
             <div class="mb-3">
-                <label for="file_format" class="form-label">File Format:</label>
-                <input type="text" id="file_format" name="file_format" th:value="${document.fileFormat}" class="form-control" required>
+                <label for="file_format" class="form-label">Format du fichier :</label>
+                <input type="text" id="file_format" name="file_format" th:value="${document.fileFormat}" class="form-control" placeholder="Exemple : PDF, DOCX" required>
             </div>
 
+            <!-- Fichier du document -->
             <div class="mb-3">
-                <label for="documentFile" class="form-label">Update Document File:</label>
+                <label for="documentFile" class="form-label">Mettre à jour le fichier :</label>
+                
+                <!-- Show a link to the existing file -->
+                <div th:if="${document.filePath != null}">
+                    <p>Fichier actuel : 
+                        <a th:href="@{/documents/files/{filename}(filename=${document.filePath})}" target="_blank" th:text="${document.filePath}"></a>
+                    </p>
+                </div>
+            
+                <!-- Input to upload a new file -->
                 <input type="file" id="documentFile" name="documentFile" class="form-control">
             </div>
+            
 
-            <button type="submit" class="btn btn-primary w-100">Save Changes</button>
-            <a href="/" class="btn btn-secondary w-100 mt-2">Cancel</a>
+            <!-- Boutons -->
+            <div class="text-center">
+                <button type="submit" class="btn btn-success">Sauvegarder les modifications</button>
+                <a href="/" class="btn btn-secondary">Annuler</a>
+            </div>
         </form>
     </div>
+
+    <!-- Lien vers le script JS de Bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
