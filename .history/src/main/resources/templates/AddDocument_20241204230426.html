@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajouter un Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+        
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Ajouter un Document</h1>
+
+        <!-- Affichage des messages d'erreur -->
+        <div th:if="${error}" class="text-danger">
+            <p th:text="${error}"></p>
+        </div>
+
+        <form th:action="@{/documents/create}" method="post" enctype="multipart/form-data">
+            <!-- Titre -->
+            <div class="mb-3">
+                <label for="title" class="form-label">Titre :</label>
+                <input type="text" id="title" name="title" class="form-control" placeholder="Entrez le titre du document" required>
+            </div>
+
+            <!-- Auteur -->
+            <div class="mb-3">
+                <label for="author" class="form-label">Auteur :</label>
+                 <input type="text" id="author" name="author" class="form-control" placeholder="Entrez le nom de l'auteur" required>
+            </div>
+
+
+            <!-- Catégorie -->
+            <div class="mb-3">
+                <label for="category" class="form-label">Catégorie :</label>
+                <select id="category" name="category_id" class="form-select" required>
+                    <option value="" disabled selected>Sélectionnez une catégorie</option>
+                    <option th:each="category : ${categories}" 
+                            th:value="${category.id}" 
+                            th:text="${category.name}"></option>
+                </select>
+            </div>
+
+            <!-- Thème -->
+            <div class="mb-3">
+                <label for="theme" class="form-label">Thème :</label>
+                <select id="theme" name="theme_id" class="form-select" required>
+                    <option value="" disabled selected>Sélectionnez une catégorie</option>
+                    <option th:each="category : ${categories}" 
+                            th:value="${category.id}" 
+                            th:text="${category.name}"></option>
+                </select>
+            </div>
+
+            <!-- Résumé -->
+            <div class="mb-3">
+                <label for="summary" class="form-label">Résumé :</label>
+                <textarea id="summary" name="summary" class="form-control" rows="4" placeholder="Entrez un résumé du document"></textarea>
+            </div>
+
+            <!-- Mots-Clés -->
+            <div class="mb-3">
+                <label for="keywords" class="form-label">Mots-Clés :</label>
+                <input type="text" id="keywords" name="keywords" class="form-control" placeholder="Entrez les mots-clés (séparés par des virgules)">
+            </div>
+
+            <!-- Date de publication -->
+            <div class="mb-3">
+                <label for="publish_date" class="form-label">Date de publication :</label>
+                <input type="date" id="publish_date" name="publishDate" class="form-control" required>
+            </div>
+
+            <!-- Langue -->
+            <div class="mb-3">
+                <label for="language" class="form-label">Langue :</label>
+                <input type="text" id="language" name="language" class="form-control" placeholder="Entrez la langue (ex : Français)" required>
+            </div>
+
+            <!-- Format du fichier -->
+            <div class="mb-3">
+                <label for="fileFormat" class="form-label">Format du fichier :</label>
+                <input type="text" id="fileFormat" name="fileFormat" class="form-control" placeholder="Exemple : PDF, DOCX" required>
+            </div>
+
+            <!-- Fichier -->
+            <div class="mb-3">
+                <label for="documentFile" class="form-label">Fichier :</label>
+                <input type="file" id="documentFile" name="documentFile" class="form-control" required>
+            </div>
+
+            <!-- Bouton d'ajout -->
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary">Ajouter</button>
+            </div>
+        </form>
+    </div>
+    <!-- Footer -->
+    <div th:insert="fragments/footer :: footer"></div>
+    <!-- Lien vers le script JS de Bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Document Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            padding: 20px;
+        }
+
+        .document-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .document-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .document-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .document-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .document-field {
+            flex: 1 1 45%;
+        }
+
+        .document-field label {
+            font-weight: bold;
+            color: #555;
+        }
+
+        .document-field p {
+            margin: 5px 0 15px;
+            color: #666;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .action-buttons button,
+        .action-buttons a {
+            text-decoration: none;
+            padding: 10px 15px;
+            color: #fff;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .view-button {
+            background-color: #007bff;
+        }
+
+        .print-summary-button {
+            background-color: #28a745;
+        }
+
+        .view-button:hover {
+            background-color: #0056b3;
+        }
+
+        .print-summary-button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="document-container" th:each="document : ${documents}">
+        <div class="document-header">
+            <div class="document-title" th:text="${document.title}">Document Title</div>
+        <div class="action-buttons">
+            <button class="print-summary-button" onclick="printSummary()">Print Document Summary</button>
+            <a th:href="@{/view-document-content/{id}(id=${document.id})}" target="_blank" class="view-button">View Content</a>
+        </div>
+    </div>
+
+    <div class="document-info">
+        <div class="document-field">
+            <label>Author:</label>
+            <p th:text="${document.author}">Author Name</p>
+        </div>
+        <div class="document-field">
+            <label>Genre:</label>
+            <p th:text="${document.genre}">Genre Info</p>
+        </div>
+        <div class="document-field">
+            <label>Type:</label>
+            <p th:text="${document.type}">Type Info</p>
+        </div>
+        <div class="document-field">
+            <label>Language:</label>
+            <p th:text="${document.language}">Language Info</p>
+        </div>
+        <div class="document-field" style="flex: 1 1 100%;">
+            <label>Summary:</label>
+            <p th:text="${document.summary}">Summary content goes here...</p>
+        </div>
+        <div class="document-field">
+            <label>Publish Date:</label>
+            <p th:text="${#dates.format(document.publishDate, 'yyyy-MM-dd')}">Publish Date</p>
+        </div>
+        <div class="document-field">
+            <label>Page Count:</label>
+            <p th:text="${document.pageCount}">Page Count</p>
+        </div>
+        <div class="document-field">
+            <label>File Format:</label>
+            <p th:text="${document.fileFormat}">File Format</p>
+        </div>
+        <div class="document-field">
+            <label>Document ID:</label>
+            <p th:text="${document.id}">Document ID</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    function printSummary() {
+        window.print();
+    }
+</script>
+
+</body>
+</html>
+
