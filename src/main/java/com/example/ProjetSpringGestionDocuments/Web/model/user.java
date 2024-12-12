@@ -1,4 +1,4 @@
-package com.example.ProjetSpringGestionDocuments.DAO.Entity;
+package com.example.ProjetSpringGestionDocuments.Web.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

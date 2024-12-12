@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>User Layout</title>
+<script type="text/javascript"></script>
+<link rel="stylesheet" th:href="@{/webjars/bootswatch/dist/minty/bootstrap.css}">
+</head>
+<body>
+    <!-- Header -->
+    <div th:replace="~{fragments/UserHeader::header(title=${title})}"></div>
+    
+    <!-- Main Content -->
+    <div class="container " th:insert="~{::content}">
+    </div>
+    <!-- Footer -->
+    <div th:replace="~{fragments/footer::footer}"></div>
+
+</body>
+</html>

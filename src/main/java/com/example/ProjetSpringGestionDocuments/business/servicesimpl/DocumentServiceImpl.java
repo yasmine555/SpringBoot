@@ -1,19 +1,23 @@
 package com.example.ProjetSpringGestionDocuments.business.servicesimpl;
 
-import com.example.ProjetSpringGestionDocuments.business.services.DocumentService;
-import com.example.ProjetSpringGestionDocuments.DAO.Entity.Document;
-import com.example.ProjetSpringGestionDocuments.DAO.Repository.DocumentRepository;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.util.Date;
-import java.util.List;
+import com.example.ProjetSpringGestionDocuments.DAO.Entity.Document;
+import com.example.ProjetSpringGestionDocuments.DAO.Repository.DocumentRepository;
+import com.example.ProjetSpringGestionDocuments.business.services.DocumentService;
 
 @Service
 public class DocumentServiceImpl implements DocumentService {
@@ -26,11 +30,20 @@ public class DocumentServiceImpl implements DocumentService {
     public DocumentServiceImpl(DocumentRepository documentRepository) {
         this.documentRepository = documentRepository;
     }
-
+    
     @Override
     public List<Document> getAllDocuments() {
-        return documentRepository.findAll();
+       return this.documentRepository.findAll();
     }
+    @Override
+    public Page<Document> getAllDocumentPagination(Pageable pegeable) {
+        if(pegeable ==null){
+            return null;
+        }
+        return this.documentRepository.findAll(pegeable);
+
+    }
+    
 
     @Override
     public Document getDocumentById(Long id) {
@@ -42,7 +55,7 @@ public class DocumentServiceImpl implements DocumentService {
     public void saveDocument(Document document, MultipartFile file) throws IOException {
         if (file != null && !file.isEmpty()) {
             String fileName = file.getOriginalFilename();
-            Path filePath = Paths.get(uploadDir, fileName);
+            Path filePath = Path.of(uploadDir, fileName);
 
             // Création des répertoires si nécessaire
             Files.createDirectories(filePath.getParent());
@@ -54,54 +67,134 @@ public class DocumentServiceImpl implements DocumentService {
             document.setFilePath(filePath.toString());
         }
 
-       
         documentRepository.save(document);
     }
 
     @Override
     public void updateDocument(Long id, Document updatedDocument, MultipartFile file) throws IOException {
-        Document existingDocument = getDocumentById(id);
+        Document existingDocument = documentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Document non trouvé"));
 
-        // Mise à jour des informations principales
+        // Mettre à jour les champs du document
         existingDocument.setTitle(updatedDocument.getTitle());
-        existingDocument.setAuthor(updatedDocument.getAuthor());
+        existingDocument.setTheme(updatedDocument.getTheme());
+        existingDocument.setFileFormat(updatedDocument.getFileFormat());
         existingDocument.setLanguage(updatedDocument.getLanguage());
         existingDocument.setSummary(updatedDocument.getSummary());
+        existingDocument.setKeywords(updatedDocument.getKeywords());
         existingDocument.setPublishDate(updatedDocument.getPublishDate());
-        existingDocument.setFileFormat(updatedDocument.getFileFormat());
-        
+        existingDocument.setAuthor(updatedDocument.getAuthor());
 
-        // Mise à jour du fichier si présent
+        // Gestion du fichier
         if (file != null && !file.isEmpty()) {
-            String fileName = file.getOriginalFilename();
-            Path filePath = Paths.get(uploadDir, fileName);
-
-            Files.createDirectories(filePath.getParent());
-            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-
-            existingDocument.setFilePath(filePath.toString());
+            String filePath = saveFile(file); // Implémentez cette méthode pour enregistrer le fichier
+            existingDocument.setFilePath(filePath);
         }
 
         documentRepository.save(existingDocument);
     }
 
-    @Override
-    public void deleteDocument(Long id) {
-        if (!documentRepository.existsById(id)) {
-            throw new RuntimeException("Le document avec l'ID " + id + " n'existe pas.");
+    // Exemple de méthode pour enregistrer un fichier
+    private String saveFile(MultipartFile file) throws IOException {
+        String uploadDir = "uploads/documents/";
+        String fileName = file.getOriginalFilename();
+        Path uploadPath = Path.of(uploadDir);
+
+        if (!Files.exists(uploadPath)) {
+            Files.createDirectories(uploadPath);
         }
-        documentRepository.deleteById(id);
+
+        try (InputStream inputStream = file.getInputStream()) {
+            Path filePath = uploadPath.resolve(fileName);
+            Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
+            return filePath.toString();
+        }
     }
+
+    @Override
+    public Document findById(Long id) {
+        return documentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Document non trouvé pour l'ID : " + id));
+    }
+
+    public List<Document> getDocumentsByAuthorId(int authorId) {
+        return documentRepository.findByAuthorId(authorId);
+    }
+    public Page<Document> getDocumentSortedByCategoryPagination(String order, Pageable pegeable) {
+        if(pegeable ==null){
+            return null;
+        }  
+        Sort.Direction direction= Sort.Direction.ASC;
+        if("desc".equalsIgnoreCase(order)){
+            direction= Sort.Direction.DESC;
+        }
+        Pageable sortedPageable=PageRequest.of(
+            pegeable.getPageNumber(),
+            pegeable.getPageSize(),
+            Sort.by(direction,"category")
+        );
+        return this.documentRepository.findAll(sortedPageable);
+    }
+
+    /*
+     * public List<Document> getDocumentsWithFilters(String searchQuery, String
+     * documentType, String documentGenre, String author, int page, int pageSize,
+     * String sortBy) {
+     * Pageable pageable = PageRequest.of(page, pageSize, sortBy.equals("asc") ?
+     * Sort.by("publishDate").ascending() : Sort.by("publishDate").descending());
+     * 
+     * List<Document> documents = documentRepository.findAll(); // Start with all
+     * documents
+     * 
+     * // Apply filters if any are provided
+     * if (searchQuery != null && !searchQuery.isEmpty()) {
+     * documents =
+     * documentRepository.findByTitleContainingOrAuthor_NameContaining(searchQuery,
+     * searchQuery);
+     * }
+     * if (documentType != null && !documentType.isEmpty()) {
+     * // Implement filtering based on documentType (e.g., filter by a specific
+     * category)
+     * // You'll need to add logic to filter by document type (category)
+     * }
+     * if (documentGenre != null && !documentGenre.isEmpty()) {
+     * // Implement filtering based on documentGenre (e.g., filter by specific
+     * theme)
+     * // You'll need to add logic to filter by document genre (theme)
+     * }
+     * if (author != null && !author.isEmpty()) {
+     * documents = documentRepository.findByAuthorId(authorId);
+     * }
+     * 
+     * return documents;
+     * }
+     */
+
+    public int getTotalDocumentsCount() {
+        return (int) documentRepository.count();
+    }
+
 
     @Override
     public List<Document> searchDocumentsByTitleOrAuthor(String title, String author) {
         if (title != null && !title.isEmpty()) {
             return documentRepository.findByTitleContaining(title);
-        }/*  else if (author != null && !author.isEmpty()) {
-            return documentRepository.findByAuthorContaining(author);
-        } */
-            else {
+        } else if (author != null && !author.isEmpty()) {
+            // Convert author string to int (assuming author is provided as an ID)
+            int authorId = Integer.parseInt(author);
+            return documentRepository.findByAuthorId(authorId); // Create a new method to search by author ID
+        } else {
             return documentRepository.findAll();
         }
     }
+
+    @Override
+    public void deleteDocument(Long id) {
+
+        if (id == null) {
+            return;
+        }
+        this.documentRepository.deleteById(id);
+    }
+
 }

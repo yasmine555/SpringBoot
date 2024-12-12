@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Liste de documents</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <title>Liste des Documents</title>
+    <link th:replace="layout/default-layout::link" />
     <script>
         function confirmDeletion(event) {
             // Show confirmation dialog
@@ -13,65 +14,78 @@
         }
     </script>
 </head>
-<body class="bg-light">
-    <div class="container mt-5">
-        <h1 class="text-center mb-4">Liste des Documents</h1>
+<body th:replace="layout/default-layout::body(title='Liste des Documents')">
+    <div th:fragment="content">
+        <div class="container mt-5">
+            <!-- Bouton pour ajouter un nouveau document -->
+            <div class="mb-3">
+                <a th:href="@{/documents/create}" class="btn btn-primary">Ajouter un Document</a>
+            </div>
 
-        <!-- Bouton pour ajouter un nouveau document -->
-        <div class="mb-3">
-            <a th:href="@{/documents/create}" class="btn btn-primary">Ajouter un Document</a>
-        </div>
+            <!-- Tableau des documents -->
+            <table class="table table-hover" th:unless="${#lists.isEmpty(documents)}">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Titre</th>
+                        <th>Auteur</th>
+                        <th>Catégorie</th>
+                        <th>Thème</th>
+                        <th>Date de Publication</th>
+                        <th>Format</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="document, state : ${documents}" th:class="${state.even} ? 'table-light' : ''">
+                        <td th:text="${document.id}"></td>
+                        <td th:text="${document.title}"></td>
+                        <td th:text="${document.author?.name ?: 'Non spécifié'}"></td>
+                        <td th:text="${document.category?.name ?: 'Non catégorisé'}"></td>
+                        <td th:text="${document.theme ?: 'Aucun thème'}"></td>
+                        <td th:text="${document.publishDate != null ? #dates.format(document.publishDate, 'dd/MM/yyyy') : 'Date non disponible'}"></td>
+                        <td th:text="${document.fileFormat ?: 'N/A'}"></td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                <a th:href="@{/documents/edit/{id}(id=${document.id})}" class="btn btn-success btn-sm">Modifier</a>
+                                <form th:action="@{/documents/delete/{id}(id=${document.id})}" method="post" onsubmit="confirmDeletion(event)">
+                                    <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
 
-        <!-- Tableau des documents -->
-        <table class="table table-hover" th:unless="${#lists.isEmpty(documents)}">
-            <thead class="table-dark">
-                <tr>
-                    <th>ID</th>
-                    <th>Titre</th>
-                    <th>Auteur</th>
-                    <th>Category</th>
-                    <th>Thème</th>
-                    <th>Date de Publication</th>
-                    <th>File Format</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="document, state : ${documents}" th:class="${state.even} ? 'table-light' : ''">
-                    <td th:text="${document.id}"></td>
-                    <td th:text="${document.title}"></td>
-                    <td th:text="${document.author.name}"></td> 
-                    <td th:text="${document.category.name}"></td>
-                    <td th:text="${document.theme}"></td>
-                    <td th:text="${#dates.format(document.publishDate, 'yyyy-MM-dd')}"></td>
-                    <td th:text="${document.fileFormat}"></td>
-                    <td>
-                        <div class="d-flex gap-2">
-                            <!-- Bouton Voir -->
-                            <a th:href="@{/documents/view/{id}(id=${document.id})}" class="btn btn-info btn-sm">Voir</a>
-                            
-                            <!-- Bouton Mettre à Jour -->
-                            <a th:href="@{/documents/edit/{id}(id=${document.id})}" class="btn btn-success btn-sm">Mettre à Jour</a>
-                            
-                            <!-- Bouton Supprimer avec confirmation -->
-                            <form th:action="@{/documents/delete/{id}(id=${document.id})}" method="post" onsubmit="confirmDeletion(event)">
-                                <input type="hidden" name="_method" value="delete" />
-                                <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
-                            </form>
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+            <!-- Message si aucun document trouvé -->
+            <div class="alert alert-warning text-center" th:if="${#lists.isEmpty(documents)}">
+                Aucun document n'a été trouvé !
+            </div>
 
-        <!-- Message si aucun document trouvé -->
-        <div class="alert alert-warning text-center" th:if="${#lists.isEmpty(documents)}">
-            Aucun document trouvé !
+            <!-- Pagination -->
+            <div class="text-center mt-3">
+                <nav th:if="${totalPages > 1}">
+                    <ul class="pagination pagination-sm justify-content-center">
+                        <li class="page-item" th:classappend="${currentPage == 0 ? 'disabled' : ''}">
+                            <a class="page-link" th:href="@{/documents(page=${currentPage-1}, pageSize=${pageSize})}">&laquo;</a>
+                        </li>
+                        <li th:each="index: ${#numbers.sequence(0, totalPages - 1)}" 
+                            class="page-item" 
+                            th:classappend="${currentPage == index ? 'active' : ''}">
+                            <a class="page-link" th:href="@{/documents(page=${index}, pageSize=${pageSize})}" th:text="${index + 1}"></a>
+                        </li>
+                        <li class="page-item" th:classappend="${currentPage == totalPages - 1 ? 'disabled' : ''}">
+                            <a class="page-link" th:href="@{/documents(page=${currentPage+1}, pageSize=${pageSize})}">&raquo;</a>
+                        </li>
+                    </ul>
+                </nav>
+                
+                <!-- Page Number Display -->
+                <div class="mt-2 text-muted" th:if="${totalPages > 1}">
+                    Page <span th:text="${currentPage + 1}"></span> sur <span th:text="${totalPages}"></span>
+                </div>
+            </div>
         </div>
     </div>
-
-    <footer class="mt-5">
-        <p class="text-center">&copy; <span th:text="${#dates.year(#dates.createNow())}"></span> Gestion des Documents. Tous droits réservés.</p>
-    </footer>
 </body>
 </html>

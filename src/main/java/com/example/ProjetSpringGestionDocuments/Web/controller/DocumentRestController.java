@@ -21,6 +21,7 @@ public class DocumentRestController {
 
     @Autowired
     private DocumentService documentService;
+    
 
     @GetMapping
     public List<Document> getAllDocuments() {

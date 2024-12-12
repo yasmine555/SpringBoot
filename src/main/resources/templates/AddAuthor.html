@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <link th:replace="layout/default-layout::link" />
+</head>
+<body th:replace="layout/default-layout::body(title='Ajouter un Auteur')">
+
+    <div th:fragment="content">
+        <div class="container mt-5">
+            <h2>Ajouter un Auteur</h2>
+            <form action="#" th:action="@{/authors/save}" th:object="${author}" method="post">
+                <div class="mb-3">
+                    <label for="name" class="form-label">Nom :</label>
+                    <input type="text" id="name" th:field="*{name}" class="form-control" required />
+                </div>
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email :</label>
+                    <input type="email" id="email" th:field="*{email}" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</body>
+
+</html>

@@ -1,19 +1,15 @@
 package com.example.ProjetSpringGestionDocuments.Web.controller;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -21,6 +17,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -32,13 +29,16 @@ import com.example.ProjetSpringGestionDocuments.DAO.Repository.AuthorRepository;
 import com.example.ProjetSpringGestionDocuments.DAO.Repository.CategoryRepository;
 import com.example.ProjetSpringGestionDocuments.DAO.Repository.DocumentRepository;
 import com.example.ProjetSpringGestionDocuments.Web.model.DocumentForm;
+import com.example.ProjetSpringGestionDocuments.business.services.AuthorService;
+import com.example.ProjetSpringGestionDocuments.business.services.CategoryService;
+import com.example.ProjetSpringGestionDocuments.business.services.DocumentService;
 
-
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
 @Controller
+@RequestMapping("/documents") 
 public class DocumentController {
+
     private static final Logger logger = LoggerFactory.getLogger(DocumentController.class);
 
     @Value("${upload.dir}")
@@ -47,82 +47,41 @@ public class DocumentController {
     @Autowired
     private DocumentRepository documentRepository;
     @Autowired
-    private AuthorRepository AuthorRepository;
-
+    private AuthorRepository authorRepository;
     @Autowired
-    private CategoryRepository CategoryRepository;
+    private CategoryRepository categoryRepository;
+    @Autowired
+    private CategoryService categoryService;
+    @Autowired
+    private DocumentService documentService;
+    @Autowired
+    private AuthorService authorService;
 
-    @GetMapping("/")
-    public String showIndexPage(Model model, HttpSession session) {
-        model.addAttribute("showFilter", false);
-
-        List<Document> documents = documentRepository.findByTitleContaining(uploadDir);
-        model.addAttribute("documents", documents);
-
-        Boolean isLoggedIn = (Boolean) session.getAttribute("isLoggedIn");
-        model.addAttribute("isLoggedIn", isLoggedIn != null && isLoggedIn);
-
-        return "index";
-    }
-
-    @PostMapping("/toggle-filter")
-    public String toggleFilter(@RequestParam boolean showFilter, HttpSession session, Model model) {
-        session.setAttribute("showFilter", !showFilter);
-        model.addAttribute("showFilter", !showFilter);
-
-        List<Document> documents = documentRepository.findByTitleContaining(uploadDir);
-        model.addAttribute("documents", documents);
-
-        Boolean isLoggedIn = (Boolean) session.getAttribute("isLoggedIn");
-        model.addAttribute("isLoggedIn", isLoggedIn != null && isLoggedIn);
-
-        return "index";
-    }
-
-    @PostMapping("/login")
-    public String login(@RequestParam String username, @RequestParam String password, HttpSession session,
-                        Model model) {
-        if ("admin".equals(username) && "adminpassword".equals(password)) {
-            session.setAttribute("isLoggedIn", true);
-        }
-        return "redirect:/";
-    }
-
-    @PostMapping("/logout")
-    public String logout(HttpSession session) {
-        session.invalidate();
-        return "redirect:/";
-    }
-
-    @GetMapping("/documents/create")
+    @GetMapping("/create")
     public String showAddDocumentPage(Model model) {
         model.addAttribute("documentForm", new DocumentForm());
-        model.addAttribute("authors", AuthorRepository.findAll());
-        model.addAttribute("categories", CategoryRepository.findAll());
+        model.addAttribute("authors", authorRepository.findAll());
+        model.addAttribute("categories", categoryRepository.findAll());
         return "AddDocument";
     }
 
-    @PostMapping("/documents/create")
+    @PostMapping("/create")
     public String addDocument(
-            @Valid @ModelAttribute("documentForm") DocumentForm documentForm,
+            @Valid @ModelAttribute DocumentForm documentForm,
             BindingResult bindingResult,
-            @RequestParam("documentFile") MultipartFile documentFile,
+            @RequestParam MultipartFile documentFile,
             RedirectAttributes redirectAttributes) {
-    
         if (bindingResult.hasErrors()) {
             redirectAttributes.addFlashAttribute("error", "Veuillez vérifier les champs obligatoires.");
             return "redirect:/documents/create";
         }
-    
+
         try {
-            // Trouver l'auteur à l'aide de l'ID
-            Author author = AuthorRepository.findById(documentForm.getAuthor_id())
+            Author author = authorRepository.findById(documentForm.getAuthor_id())
                     .orElseThrow(() -> new RuntimeException("Auteur introuvable : " + documentForm.getAuthor_id()));
-    
-            // Trouver la catégorie à l'aide de l'ID
-            Category category = CategoryRepository.findById(documentForm.getCategory_id())
+            Category category = categoryRepository.findById(documentForm.getCategory_id())
                     .orElseThrow(() -> new RuntimeException("Catégorie introuvable : " + documentForm.getCategory_id()));
-    
+
             Document document = new Document();
             document.setTitle(documentForm.getTitle());
             document.setAuthor(author);
@@ -132,120 +91,102 @@ public class DocumentController {
             document.setFileFormat(documentForm.getFileFormat());
             document.setPublishDate(java.sql.Date.valueOf(documentForm.getPublishDate()));
             document.setFilePath(documentFile.getOriginalFilename());
-    
+
             documentRepository.save(document);
-    
             redirectAttributes.addFlashAttribute("successMessage", "Document ajouté avec succès !");
             return "redirect:/documents";
-    
+
         } catch (Exception e) {
             logger.error("Erreur lors de l'ajout du document", e);
             redirectAttributes.addFlashAttribute("error", "Erreur : " + e.getMessage());
             return "redirect:/documents/create";
         }
     }
+
+    @GetMapping
+public String listDocuments(
+    @RequestParam(defaultValue = "0") int page,
+    @RequestParam(defaultValue = "3") int pageSize, 
+    Model model) {
     
-
-    @GetMapping("/documents/view")
-    public String viewDocument(@RequestParam("selectedDocument") Long documentId, Model model) {
-        Document document = documentRepository.findById(documentId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid document ID: " + documentId));
-        model.addAttribute("documents", List.of(document));
-        return "documents";
-    }
-
-    @GetMapping("/documents")
-    public String listDocuments(Model model) {
-        List<Document> documents = documentRepository.findAll();
-        model.addAttribute("documents", documents);
-
-        List<String> fileNames = new ArrayList<>();
-        File directory = new File(uploadDir);
-        if (directory.exists() && directory.isDirectory()) {
-            for (File file : directory.listFiles()) {
-                if (file.isFile()) {
-                    fileNames.add(file.getName());
-                }
+    // Use pagination directly
+    Page<Document> documentPage = documentService.getAllDocumentPagination(PageRequest.of(page, pageSize));
+    
+    List<String> fileNames = new ArrayList<>();
+    File directory = new File(uploadDir);
+    if (directory.exists() && directory.isDirectory()) {
+        for (File file : directory.listFiles()) {
+            if (file.isFile()) {
+                fileNames.add(file.getName());
             }
         }
-        model.addAttribute("fileNames", fileNames);
-
-        return "documents";
     }
+    
+    model.addAttribute("documents", documentPage.getContent());
+    model.addAttribute("fileNames", fileNames);
+    model.addAttribute("pageSize", pageSize);
+    model.addAttribute("currentPage", page);
+    model.addAttribute("totalPages", documentPage.getTotalPages()); // Add this line
+    
+    return "documents";
+}
 
-    @GetMapping("/documents/edit/{id}")
-    public String showEditDocumentPage(@PathVariable Long id, Model model) {
-        // Trouver le document à modifier
-        Document document = documentRepository.findById(id).orElse(null);
+    @GetMapping("/edit/{id}")
+    public String showEditDocumentForm(@PathVariable Long id, Model model) {
+        Document document = documentService.getDocumentById(id);
         if (document == null) {
-            model.addAttribute("errorMessage", "Document not found");
+            model.addAttribute("error", "Document introuvable.");
             return "redirect:/documents";
         }
-    
-        // Ajouter le document au modèle
-        model.addAttribute("document", document);
-    
-        // Ajouter les listes des auteurs et des catégories au modèle
-        model.addAttribute("authors", AuthorRepository.findAll()); 
-        model.addAttribute("categories", CategoryRepository.findAll());
-    
-        // Retourner le nom de la vue (editDocument.html)
+
+        List<Author> authors = authorService.getAllAuthors();
+        DocumentForm documentForm = new DocumentForm();
+        documentForm.setAuthor_id(document.getAuthor().getId());
+
+        model.addAttribute("authors", authors);
+        model.addAttribute("documentForm", documentForm);
+
         return "editDocument";
     }
-    
 
-    @PostMapping("/documents/edit/{id}/with-file")
-    public String updateDocumentWithFile(@PathVariable("id") Long documentId,
-                                         @ModelAttribute("document") Document document,
-                                         @RequestParam("documentFile") MultipartFile file) {
-        Document existingDocument = documentRepository.findById(documentId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid document ID: " + documentId));
-
-        existingDocument.setTitle(document.getTitle());
-        existingDocument.setAuthor(document.getAuthor());
-        existingDocument.setCategory(document.getCategory());
-        existingDocument.setLanguage(document.getLanguage());
-        existingDocument.setSummary(document.getSummary());
-        existingDocument.setPublishDate(document.getPublishDate());
-        existingDocument.setFileFormat(document.getFileFormat());
-
-        if (!file.isEmpty()) {
-            String filePath = saveFile(file);
-            existingDocument.setFilePath(filePath);
-        }
-
-        documentRepository.save(existingDocument);
-
-        return "documents";
-    }
-
-    private String saveFile(MultipartFile file) {
-        String fileName = file.getOriginalFilename();
-        String uploadDir = "/DocumentUploadsdirectory";
-
+    @PostMapping("/edit/{id}")
+    public String editDocument(@PathVariable Long id, @ModelAttribute DocumentForm documentForm, BindingResult result,
+                                Model model) {
         try {
-            java.nio.file.Path path = java.nio.file.Paths.get(uploadDir + fileName);
-            Files.createDirectories(path.getParent());
-            Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Failed to store file " + fileName, e);
+            Document document = documentRepository.findById(id).orElse(null);
+            if (document == null) {
+                model.addAttribute("error", "Document introuvable.");
+                return "redirect:/documents";
+            }
+
+            document.setTitle(documentForm.getTitle());
+            document.setTheme(documentForm.getTheme());
+            document.setFileFormat(documentForm.getFileFormat());
+            document.setLanguage(documentForm.getLanguage());
+            document.setSummary(documentForm.getSummary());
+            document.setKeywords(documentForm.getKeywords());
+            document.setPublishDate(java.sql.Date.valueOf(documentForm.getPublishDate()));
+
+            Author author = authorService.getAuthorById(documentForm.getAuthor_id());
+            if (author == null) {
+                model.addAttribute("error", "Auteur introuvable.");
+                return "editDocument";
+            }
+            document.setAuthor(author);
+
+            MultipartFile file = documentForm.getDocumentFile();
+            documentService.updateDocument(id, document, file);
+
+            return "redirect:/documents";
+        } catch (Exception e) {
+            model.addAttribute("error", "Erreur lors de la mise à jour du document.");
+            return "editDocument";
         }
-
-        return uploadDir + fileName;
     }
 
-    @PostMapping("/documents/edit/{id}")
-    public String updateDocument(@PathVariable Long id, @ModelAttribute Document document) {
-        documentRepository.save(document);
-        return "redirect:/documents";
-    }
-
-    @PostMapping("/documents/delete/{id}")
+    @PostMapping("/delete/{id}")
     public String deleteDocumentPost(@PathVariable Long id) {
         documentRepository.deleteById(id);
         return "redirect:/documents";
     }
-
-   
 }

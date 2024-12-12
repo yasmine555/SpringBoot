@@ -1,7 +1,17 @@
 package com.example.ProjetSpringGestionDocuments.DAO.Entity;
 
 import java.util.Date;
-import jakarta.persistence.*;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -38,7 +48,7 @@ public class Document {
     @Column(name = "language", length = 250, nullable = true)
     private String language;
 
-    @Column(name = "Summary")
+    @Column(name = "Summary" , nullable = true)
     private String summary;
 
     @Column(name = "Publishdate")
@@ -52,7 +62,7 @@ public class Document {
     @Column(name = "file_path", length = 250, nullable = false)
     private String filePath;
 
-    @Column(name = "Keywords", length = 500)
+    @Column(name = "Keywords", length = 500 , nullable = true )
     private String keywords;
 
 }
