@@ -54,13 +54,13 @@
                 <!-- Résumé -->
                 <div class="mb-3">
                     <label for="summary" class="form-label">Résumé :</label>
-                    <textarea id="summary" name="summary" class="form-control" th:text="${document.summary}" rows="4" required></textarea>
+                    <textarea id="summary" name="summary" class="form-control" th:text="${document.summary}" rows="4" ></textarea>
                 </div>
 
                 <!-- Mots-Clés -->
                 <div class="mb-3">
                     <label for="keywords" class="form-label">Mots-Clés :</label>
-                    <input type="text" id="keywords" name="keywords" class="form-control" th:value="${document.keywords}" required/>
+                    <input type="text" id="keywords" name="keywords" class="form-control" th:value="${document.keywords}" />
                 </div>
 
                 <!-- Date de Publication -->

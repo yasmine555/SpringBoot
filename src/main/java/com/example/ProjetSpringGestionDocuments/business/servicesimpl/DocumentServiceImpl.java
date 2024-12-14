@@ -8,10 +8,10 @@ import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -196,5 +196,16 @@ public class DocumentServiceImpl implements DocumentService {
         }
         this.documentRepository.deleteById(id);
     }
+    public Page<Document> getDocumentsSortedByCategory(String sortByCategory, PageRequest pageRequest) {
+        return documentRepository.findByCategory_NameOrderByCategory_NameAsc(sortByCategory, pageRequest);
+    }
+    
+    public Page<Document> getDocumentsSortedByFileFormat(String sortByFileFormat, PageRequest pageRequest) {
+        return documentRepository.findByFileFormatOrderByFileFormatAsc(sortByFileFormat, pageRequest);
+    }
+    
+    
+    
+    
 
 }

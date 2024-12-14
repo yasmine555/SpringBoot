@@ -17,6 +17,42 @@
 <body th:replace="layout/default-layout::body(title='Liste des Documents')">
     <div th:fragment="content">
         <div class="container mt-5">
+            <!-- Formulaire de filtrage et recherche -->
+    <form method="get" action="/documents">
+        <div class="row mb-3">
+            <!-- Recherche par titre -->
+            <div class="col-md-4">
+                <input type="text" class="form-control" name="searchQuery" placeholder="Rechercher par titre" th:value="${searchQuery}">
+            </div>
+
+            <!-- Filtrage par catégorie -->
+            <div class="col-md-3">
+               
+                
+                    <select name="sortByCategory" id="sortByCategory" class="form-control">
+                        <option value="">--Sélectionner une catégorie--</option>
+                        <option th:each="category : ${categories}" 
+                                th:value="${category.name}" 
+                                th:text="${category.name}"></option>
+                    </select>
+            </div>
+
+            <!-- Filtrage par format de fichier -->
+            <div class="col-md-3">
+                <select name="sortByFileFormat" class="form-control">
+                    <option value="">Sélectionner un format</option>
+                    <option th:value="PDF" th:text="'PDF'"></option>
+                    <option th:value="DOCX" th:text="'DOCX'"></option>
+                    <!-- Ajouter d'autres formats ici -->
+                </select>
+            </div>
+
+            <!-- Bouton de soumission -->
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">Filtrer</button>
+            </div>
+        </div>
+    </form>
             <!-- Bouton pour ajouter un nouveau document -->
             <div class="mb-3">
                 <a th:href="@{/documents/create}" class="btn btn-primary">Ajouter un Document</a>

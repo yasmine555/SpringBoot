@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <link th:replace="layout/default-layout::link" />
+</head>
+<body th:replace="layout/default-layout::body(title='Modifier une Catégorie')">
+
+    <div th:fragment="content">
+        <div class="container mt-5">
+            
+            <form action="#" th:action="@{/categories/edit/{id}(id=${category.id})}" th:object="${category}" method="post">
+                <input type="hidden" th:field="*{id}" />
+                <div class="mb-3">
+                    <label for="name" class="form-label">Nom de la Catégorie :</label>
+                    <input type="text" id="name" th:field="*{name}" class="form-control" required />
+                </div>
+                <div class="mb-3">
+                    <button type="submit" class="btn btn-primary">Mettre à jour</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>

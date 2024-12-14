@@ -1,23 +1,12 @@
 package com.example.ProjetSpringGestionDocuments.business.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import com.example.ProjetSpringGestionDocuments.DAO.Repository.CategoryRepository;
-
-import java.util.List;
-
 import com.example.ProjetSpringGestionDocuments.DAO.Entity.Category;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
-@Service
-public class CategoryService {
-
-    @Autowired
-    private CategoryRepository categoryRepository;
-
-    public List<Category> findAll() {
-        return categoryRepository.findAll();
-    }
-
-
+public interface CategoryService {
+    Page<Category> getAllCategoriesPaginated(Pageable pageable);
+    Category saveCategory(Category category);
+    Category getCategoryById(Long id);
+    void deleteCategory(Long id);
 }

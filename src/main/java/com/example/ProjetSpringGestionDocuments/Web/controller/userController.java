@@ -30,7 +30,7 @@ public class userController {
     private DocumentService documentService;
 
     @GetMapping
-public String listDocumentsUser(
+    public String listDocumentsUser(
     @RequestParam(defaultValue = "0") int page,
     @RequestParam(defaultValue = "3") int pageSize,
     @RequestParam(required = false) String sortBy, // Optional sorting parameter
@@ -85,21 +85,11 @@ public String listDocumentsUser(
             throw new RuntimeException("Erreur lors du téléchargement : " + e.getMessage());
         }
     }
- /* @GetMapping("/search")
-    public String searchDocumentsByTitle(@RequestParam(required = false) String title,
-                                         @RequestParam(required = false) String author,
-                                         @RequestParam(required = false) String genre,
-                                         Model model) {
-        List<Document> documents;
-
-        if (title != null && !title.isEmpty()) {
-            documents = DocumentRepository.findByTitleContaining(title);
-        } else {
-            documents = DocumentRepository.findAll();
-        }
-
-        model.addAttribute("documents", documents);
-        return "documents";
-    } */
-
+    
+    @GetMapping("/AboutUs")
+    public String aboutPage(Model model) {
+    return "AboutUs"; // correspond au nom du template
 }
+}
+ 
+

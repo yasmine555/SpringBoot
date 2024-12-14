@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link th:replace="layout/user-layout::link" />
+</head>
+<body th:replace="layout/user-layout::body(title='Qui sommes-nous')">
+    <div th:fragment="content">
+       
+
+        <!-- Section À propos de nous -->
+        <section class="container my-5">
+            <div class="row">
+                <div class="col-12 text-center mb-5">
+                    <h1 class="display-4">À propos de notre système de Gestion de Documents</h1>
+                    <p class="lead text-muted">Simplifier la gestion documentaire, notre passion</p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body">
+                            <h3 class="card-title">Notre Mission</h3>
+                            <p class="card-text">
+                                Nous nous engageons à fournir une solution de gestion documentaire intuitive, sécurisée et efficace. 
+                                Notre objectif est de simplifier l'organisation et la recherche de documents pour les entreprises et les professionnels.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body">
+                            <h3 class="card-title">Notre Histoire</h3>
+                            <p class="card-text">
+                                Fondée en 2023, notre entreprise est née du constat que la gestion documentaire traditionnelle était complexe et chronophage. 
+                                Nous avons développé cette solution pour répondre aux besoins croissants de digitalisation et d'efficacité.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body">
+                            <h3 class="card-title">Nos Valeurs</h3>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">• Simplicité d'utilisation</li>
+                                <li class="mb-2">• Sécurité des données</li>
+                                <li class="mb-2">• Innovation continue</li>
+                                <li class="mb-2">• Support client de qualité</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section Équipe -->
+            <div class="row mt-5">
+                <div class="col-12 text-center">
+                    <h2 class="mb-4">Notre Équipe</h2>
+                    <div class="row justify-content-center">
+                        <div class="col-md-4 text-center mb-4">
+                            
+                            <h4>Yasmine Abdennadher</h4>
+                            <p class="text-muted">Fondatrice & Directrice Technique</p>
+                        </div>
+                        <div class="col-md-4 text-center mb-4">
+                            
+                            <h4>Nawres Abidi</h4>
+                            <p class="text-muted">Directeur du Développement</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section Contact -->
+            <div class="row mt-5 bg-light p-4 rounded">
+                <div class="col-12 text-center">
+                    <h2>Nous contacter</h2>
+                    <p class="lead">Vous avez des questions ? N'hésitez pas à nous contacter.</p>
+                    <a href="mailto:contact@gestiondocuments.com" class="btn btn-primary">Envoyez-nous un e-mail</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pied de page -->
+        <footer class="bg-dark text-white text-center py-3">
+            <p class="mb-0">&copy; <span th:text="${#dates.year(#dates.createNow())}"></span> Gestion de Documents. Tous droits réservés.</p>
+        </footer>
+    </div>
+</body>
+</html>

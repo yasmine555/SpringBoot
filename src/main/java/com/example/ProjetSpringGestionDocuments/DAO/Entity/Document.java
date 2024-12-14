@@ -2,6 +2,7 @@ package com.example.ProjetSpringGestionDocuments.DAO.Entity;
 
 import java.util.Date;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -33,11 +34,11 @@ public class Document {
     @Column(name = "title", length = 550, nullable = false)
     private String title;
     
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL) 
     @JoinColumn(name = "author_id", nullable = false)
     private Author author;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL) 
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
     

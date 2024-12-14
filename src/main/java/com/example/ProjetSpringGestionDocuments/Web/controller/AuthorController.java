@@ -1,6 +1,7 @@
 package com.example.ProjetSpringGestionDocuments.Web.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -10,9 +11,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.data.domain.Page;
+
 import com.example.ProjetSpringGestionDocuments.DAO.Entity.Author;
 import com.example.ProjetSpringGestionDocuments.business.services.AuthorService;
 
@@ -56,7 +56,7 @@ public class AuthorController {
         return "redirect:/authors";
     }
 
-    // Modifier un auteur
+    
     @GetMapping("/edit/{id}")
     public String showEditAuthorForm(@PathVariable Long id, Model model) {
         Author author = authorService.getAuthorById(id);
@@ -65,16 +65,17 @@ public class AuthorController {
     }
 
     @PostMapping("/edit/{id}")
-    public String updateAuthor(@PathVariable Long id,
-            @Valid @ModelAttribute Author author,
-            BindingResult bindingResult, Model model) {
-        if (bindingResult.hasErrors()) {
-            model.addAttribute("author", author);
-            return "EditAuthor";
-        }
-        authorService.saveAuthor(author);
-        return "redirect:/authors";
+public String updateAuthor(@PathVariable("id") Long id, 
+                           @Valid @ModelAttribute("author") Author author,
+                           BindingResult bindingResult, Model model) {
+    if (bindingResult.hasErrors()) {
+        model.addAttribute("author", author);
+        return "EditAuthor";
     }
+    authorService.saveAuthor(author);
+    return "redirect:/authors";
+}
+
 
     // Supprimer un auteur
     @PostMapping("/delete/{id}")
