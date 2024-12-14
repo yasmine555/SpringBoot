@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <link th:replace="layout/default-layout::link" />
+    <script>
+        function confirmDeletion(event) {
+            // Show confirmation dialog
+            if (!confirm("Êtes-vous sûr de vouloir supprimer cet auteur ?")) {
+                // If the user cancels, prevent the form from submitting
+                event.preventDefault();
+            }
+        }
+    </script>
+</head>
+<body th:replace="layout/default-layout::body(title='Liste des Auteurs')">
+
+    <div th:fragment="content">
+        <div class="container mt-5">
+            
+            <div class="mb-3">
+                <a th:href="@{/authors/add}" class="btn btn-primary">Ajouter un Auteur</a>
+            </div>
+
+            <!-- Tableau des auteurs -->
+            <table class="table table-hover" th:unless="${#lists.isEmpty(authors)}">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Nom</th>
+                        <th>Email</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="author, authorStat : ${authors}" th:class="${authorStat.even} ? 'table-light' : ''">
+                        <td th:text="${author.id}"></td>
+                        <td th:text="${author.name}"></td>
+                        <td th:text="${author.email}"></td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                <a th:href="@{/authors/edit/{id}(id=${author.id})}" class="btn btn-success btn-sm">Modifier</a>
+                                <form th:action="@{/authors/delete/{id}(id=${author.id})}" method="post" onsubmit="confirmDeletion(event)">
+                                    <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Message si aucun auteur trouvé -->
+            <div class="alert alert-warning text-center" th:if="${#lists.isEmpty(authors)}">
+                Aucun auteur trouvé !
+            </div>
+
+            <!-- Pagination -->
+            <div class="text-center mt-3">
+                <nav th:if="${totalPages > 1}">
+                    <ul class="pagination pagination-sm justify-content-center">
+                        <li class="page-item" th:classappend="${currentPage == 0 ? 'disabled' : ''}">
+                            <a class="page-link" th:href="@{/authors(page=${currentPage-1}, pageSize=${pageSize})}">&laquo;</a>
+                        </li>
+                        <li th:each="index: ${#numbers.sequence(0, totalPages - 1)}" 
+                            class="page-item" 
+                            th:classappend="${currentPage == index ? 'active' : ''}">
+                            <a class="page-link" th:href="@{/authors(page=${index}, pageSize=${pageSize})}" th:text="${index + 1}"></a>
+                        </li>
+                        <li class="page-item" th:classappend="${currentPage == totalPages - 1 ? 'disabled' : ''}">
+                            <a class="page-link" th:href="@{/authors(page=${currentPage+1}, pageSize=${pageSize})}">&raquo;</a>
+                        </li>
+                    </ul>
+                </nav>
+                
+                <!-- Page Number Display -->
+                <div class="mt-2 text-muted" th:if="${totalPages > 1}">
+                    Page <span th:text="${currentPage + 1}"></span> sur <span th:text="${totalPages}"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
