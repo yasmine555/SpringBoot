@@ -21,17 +21,6 @@ import com.example.ProjetSpringGestionDocuments.business.services.DocumentServic
 
 @Service
 public class DocumentServiceImpl implements DocumentService {
-    @Override
-    public void updateDocumentFile(Long id, Document document, MultipartFile file) throws IOException {
-        if (file != null && !file.isEmpty()) {
-            String filePath = saveFile(file); // Reuse the saveFile method for file storage
-            document.setFilePath(filePath);
-            documentRepository.save(document); // Save the document with the updated file path
-        } else {
-            throw new RuntimeException("The file is either null or empty");
-        }
-    }
-
 
     private final DocumentRepository documentRepository;
 
@@ -146,6 +135,41 @@ public class DocumentServiceImpl implements DocumentService {
         );
         return this.documentRepository.findAll(sortedPageable);
     }
+
+    /*
+     * public List<Document> getDocumentsWithFilters(String searchQuery, String
+     * documentType, String documentGenre, String author, int page, int pageSize,
+     * String sortBy) {
+     * Pageable pageable = PageRequest.of(page, pageSize, sortBy.equals("asc") ?
+     * Sort.by("publishDate").ascending() : Sort.by("publishDate").descending());
+     * 
+     * List<Document> documents = documentRepository.findAll(); // Start with all
+     * documents
+     * 
+     * // Apply filters if any are provided
+     * if (searchQuery != null && !searchQuery.isEmpty()) {
+     * documents =
+     * documentRepository.findByTitleContainingOrAuthor_NameContaining(searchQuery,
+     * searchQuery);
+     * }
+     * if (documentType != null && !documentType.isEmpty()) {
+     * // Implement filtering based on documentType (e.g., filter by a specific
+     * category)
+     * // You'll need to add logic to filter by document type (category)
+     * }
+     * if (documentGenre != null && !documentGenre.isEmpty()) {
+     * // Implement filtering based on documentGenre (e.g., filter by specific
+     * theme)
+     * // You'll need to add logic to filter by document genre (theme)
+     * }
+     * if (author != null && !author.isEmpty()) {
+     * documents = documentRepository.findByAuthorId(authorId);
+     * }
+     * 
+     * return documents;
+     * }
+     */
+
     public int getTotalDocumentsCount() {
         return (int) documentRepository.count();
     }

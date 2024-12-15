@@ -72,9 +72,12 @@
                 <!-- Publish Date -->
                 <div class="mb-3">
                     <label for="publish_date" class="form-label">Date de publication :</label>
-                    <input type="date" id="publish_date" name="publishDate" class="form-control" th:field="*{publishDate}" required />
-
-                    <span th:if="${#fields.hasErrors('publishDate')}" th:errors="*{publishDate}" class="invalid-feedback"></span>
+                    <input 
+                        type="date"
+                        id="publish_date"
+                        class="form-control"
+                        th:field="*{publishDate}" 
+                    />
                 </div>
 
                 <!-- Language -->

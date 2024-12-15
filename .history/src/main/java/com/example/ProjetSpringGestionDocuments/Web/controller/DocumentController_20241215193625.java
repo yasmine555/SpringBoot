@@ -220,6 +220,7 @@ public String showEditDocumentForm(@PathVariable Long id, Model model) {
             model.addAttribute("error", "Document introuvable.");
             return "redirect:/documents";
         }
+        
 
         // Add document to the model
         model.addAttribute("document", document);
@@ -228,7 +229,10 @@ public String showEditDocumentForm(@PathVariable Long id, Model model) {
         documentForm.setTitle(document.getTitle());
         documentForm.setSummary(document.getSummary());
         documentForm.setKeywords(document.getKeywords());
-        documentForm.setPublishDate(new java.sql.Date(document.getPublishDate().getTime()).toLocalDate());
+        documentForm.setPublishDate(document.getPublishDate() != null 
+                                    ? document.getPublishDate().toLocalDate()
+                                    : null);
+
         documentForm.setAuthor_id(document.getAuthor().getId());
         documentForm.setCategory_id(document.getCategory().getId());
         documentForm.setTheme_id(document.getTheme().getId());

@@ -213,42 +213,39 @@ public String addDocument(
 
 
     @GetMapping("/edit/{id}")
-public String showEditDocumentForm(@PathVariable Long id, Model model) {
-    try {
-        Document document = documentService.getDocumentById(id);
-        if (document == null) {
-            model.addAttribute("error", "Document introuvable.");
+    public String showEditDocumentForm(@PathVariable Long id, Model model) {
+        try {
+            Document document = documentService.getDocumentById(id);
+            if (document == null) {
+                model.addAttribute("error", "Document introuvable.");
+                return "redirect:/documents";
+            }
+
+            DocumentForm documentForm = new DocumentForm();
+            documentForm.setTitle(document.getTitle());
+            documentForm.setSummary(document.getSummary());
+            documentForm.setKeywords(document.getKeywords());
+            documentForm.setPublishDate(new java.sql.Date(document.getPublishDate().getTime()).toLocalDate()); // Handle java.util.Date to LocalDate conversion
+            documentForm.setAuthor_id(document.getAuthor().getId());
+            documentForm.setCategory_id(document.getCategory().getId());
+            documentForm.setTheme_id(document.getTheme().getId());
+            documentForm.setLanguage_id(document.getLanguage().getId());
+            documentForm.setFileformat_id(document.getFileFormat().getId());
+
+            model.addAttribute("documentForm", documentForm);
+            model.addAttribute("authors", authorRepository.findAll());
+            model.addAttribute("categories", categoryRepository.findAll());
+            model.addAttribute("themes", themeRepository.findAll());
+            model.addAttribute("languages", languageRepository.findAll());
+            model.addAttribute("fileFormats", fileFormatRepository.findAll());
+
+            return "editDocument";
+        } catch (Exception e) {
+            logger.error("Error loading document for editing", e);
+            model.addAttribute("error", "Erreur interne : " + e.getMessage());
             return "redirect:/documents";
         }
-
-        // Add document to the model
-        model.addAttribute("document", document);
-
-        DocumentForm documentForm = new DocumentForm();
-        documentForm.setTitle(document.getTitle());
-        documentForm.setSummary(document.getSummary());
-        documentForm.setKeywords(document.getKeywords());
-        documentForm.setPublishDate(new java.sql.Date(document.getPublishDate().getTime()).toLocalDate());
-        documentForm.setAuthor_id(document.getAuthor().getId());
-        documentForm.setCategory_id(document.getCategory().getId());
-        documentForm.setTheme_id(document.getTheme().getId());
-        documentForm.setLanguage_id(document.getLanguage().getId());
-        documentForm.setFileformat_id(document.getFileFormat().getId());
-
-        model.addAttribute("documentForm", documentForm);
-        model.addAttribute("authors", authorRepository.findAll());
-        model.addAttribute("categories", categoryRepository.findAll());
-        model.addAttribute("themes", themeRepository.findAll());
-        model.addAttribute("languages", languageRepository.findAll());
-        model.addAttribute("fileFormats", fileFormatRepository.findAll());
-
-        return "editDocument";
-    } catch (Exception e) {
-        logger.error("Error loading document for editing", e);
-        model.addAttribute("error", "Erreur interne : " + e.getMessage());
-        return "redirect:/documents";
     }
-}
     @PostMapping("/edit/{id}")
     public String editDocument(
         @PathVariable Long id,

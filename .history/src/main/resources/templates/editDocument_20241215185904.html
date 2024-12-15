@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Modifier un Document</title>
+    <link th:replace="layout/default-layout::link" />
+</head>
+<body th:replace="layout/default-layout::body(title='Modifier un Document')">
+    <div th:fragment="content">
+        <div class="container mt-5">
+            
+            <!-- Display error messages -->
+            <div th:if="${error}" class="text-danger">
+                <p th:text="${error}"></p>
+            </div>
+
+            <!-- Form to edit document -->
+            <form th:action="@{/documents/edit/{id}(id=${document?.id})}" th:object="${documentForm}" method="post">
+                <label for="title">Titre</label>
+                <input type="text" th:field="*{title}" class="form-control" />
+                
+                <label for="author_id">Auteur</label>
+                <select th:field="*{author_id}" class="form-control">
+                    <option th:each="author : ${authors}" th:value="${author.id}" th:text="${author.name}"></option>
+                </select>
+            
+                <!-- Similar fields for category_id, theme_id, etc. -->
+            </form>
+            
+
+                <!-- Buttons -->
+                <div class="text-center">
+                    <button type="submit" class="btn btn-success">Sauvegarder les modifications</button>
+                    <a href="/" class="btn btn-secondary">Annuler</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

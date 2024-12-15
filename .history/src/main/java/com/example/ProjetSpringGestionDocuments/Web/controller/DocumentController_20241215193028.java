@@ -136,7 +136,7 @@ public String addDocument(
         document.setTheme(theme);
         document.setSummary(summary);
         document.setKeywords(keywords);
-        document.setPublishDate(java.sql.Date.valueOf(documentForm.getPublishDate()));
+        document.setPublishDate(documentForm.getPublishDate());
         document.setLanguage(language);
         document.setFileFormat(fileFormat);
 
@@ -228,7 +228,7 @@ public String showEditDocumentForm(@PathVariable Long id, Model model) {
         documentForm.setTitle(document.getTitle());
         documentForm.setSummary(document.getSummary());
         documentForm.setKeywords(document.getKeywords());
-        documentForm.setPublishDate(new java.sql.Date(document.getPublishDate().getTime()).toLocalDate());
+        documentForm.setPublishDate(document.getPublishDate());
         documentForm.setAuthor_id(document.getAuthor().getId());
         documentForm.setCategory_id(document.getCategory().getId());
         documentForm.setTheme_id(document.getTheme().getId());
@@ -275,7 +275,7 @@ public String showEditDocumentForm(@PathVariable Long id, Model model) {
             document.setTitle(documentForm.getTitle());
             document.setSummary(documentForm.getSummary());
             document.setKeywords(documentForm.getKeywords());
-            document.setPublishDate(java.sql.Date.valueOf(documentForm.getPublishDate()));
+            document.setPublishDate(documentForm.getPublishDate()));
             document.setAuthor(authorService.getAuthorById(documentForm.getAuthor_id()));
             document.setCategory(categoryRepository.findById(documentForm.getCategory_id()).orElse(null));
             document.setTheme(themeRepository.findById(documentForm.getTheme_id()).orElse(null));

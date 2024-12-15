@@ -2,6 +2,7 @@ package com.example.ProjetSpringGestionDocuments.Web.controller;
 
 import java.io.File;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Date;
@@ -228,7 +229,9 @@ public String showEditDocumentForm(@PathVariable Long id, Model model) {
         documentForm.setTitle(document.getTitle());
         documentForm.setSummary(document.getSummary());
         documentForm.setKeywords(document.getKeywords());
-        documentForm.setPublishDate(new java.sql.Date(document.getPublishDate().getTime()).toLocalDate());
+        if (document.getPublishDate() != null) {
+            documentForm.setPublishDate(document.getPublishDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+        }
         documentForm.setAuthor_id(document.getAuthor().getId());
         documentForm.setCategory_id(document.getCategory().getId());
         documentForm.setTheme_id(document.getTheme().getId());

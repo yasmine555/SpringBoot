@@ -42,6 +42,7 @@ public class DocumentForm {
 
     private LocalDate publishDate;
 
+
     @NotNull(message = "La langue est obligatoire.")
     private Long language_id;
 
@@ -49,12 +50,4 @@ public class DocumentForm {
     private Long fileformat_id;
 
     private MultipartFile documentFile;
-    // Add standard getters and setters for all these fields
-    public LocalDate getPublishDate() {
-        return publishDate;
-    }
-
-    public void setPublishDate(LocalDate publishDate) {
-        this.publishDate = publishDate;
-    }
 }

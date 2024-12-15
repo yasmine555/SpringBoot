@@ -20,18 +20,7 @@ import com.example.ProjetSpringGestionDocuments.DAO.Repository.DocumentRepositor
 import com.example.ProjetSpringGestionDocuments.business.services.DocumentService;
 
 @Service
-public class DocumentServiceImpl implements DocumentService {
-    @Override
-    public void updateDocumentFile(Long id, Document document, MultipartFile file) throws IOException {
-        if (file != null && !file.isEmpty()) {
-            String filePath = saveFile(file); // Reuse the saveFile method for file storage
-            document.setFilePath(filePath);
-            documentRepository.save(document); // Save the document with the updated file path
-        } else {
-            throw new RuntimeException("The file is either null or empty");
-        }
-    }
-
+public class DocumentServiceImpl implements DocumentService.updateDocument {
 
     private final DocumentRepository documentRepository;
 
