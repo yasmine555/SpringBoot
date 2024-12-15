@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Liste des Documents</title>
+    <link th:replace="layout/default-layout::link" />
+    <script>
+        function confirmDeletion(event) {
+            // Show confirmation dialog
+            if (!confirm("Êtes-vous sûr de vouloir supprimer ce document ?")) {
+                // If the user cancels, prevent the form from submitting
+                event.preventDefault();
+            }
+        }
+    </script>
+</head>
+<body th:replace="layout/default-layout::body(title='Liste des Documents')">
+    <div th:fragment="content">
+        <div class="container mt-5">
+            <!-- Bouton pour ajouter un nouveau document -->
+            <div class="mb-3">
+                <a th:href="@{/documents/create}" class="btn btn-primary">Ajouter un Document</a>
+            </div>
+
+            <!-- Tableau des documents -->
+            <table class="table table-hover" th:unless="${#lists.isEmpty(documents)}">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Titre</th>
+                        <th>Auteur</th>
+                        <th>Catégorie</th>
+                        <th>Thème</th>
+                        <th>Date de Publication</th>
+                        <th>Format</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="document, state : ${documents}" th:class="${state.even} ? 'table-light' : ''">
+                        <td th:text="${document.id}"></td>
+                        <td th:text="${document.title}"></td>
+                        <td th:text="${document.author?.name ?: 'Non spécifié'}"></td>
+                        <td th:text="${document.category?.name ?: 'Non catégorisé'}"></td>
+                        <td th:text="${document.theme?.name ?: 'Non theme'}"></td>
+                        <td th:text="${document.publishDate != null ? #dates.format(document.publishDate, 'dd/MM/yyyy') : 'Date non disponible'}"></td>
+                        <td th:text="${document.fileFormat ?: 'N/A'}"></td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                <a th:href="@{/documents/edit/{id}(id=${document.id})}" class="btn btn-success btn-sm">Modifier</a>
+                                <form th:action="@{/documents/delete/{id}(id=${document.id})}" method="post" onsubmit="confirmDeletion(event)">
+                                    <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Message si aucun document trouvé -->
+            <div class="alert alert-warning text-center" th:if="${#lists.isEmpty(documents)}">
+                Aucun document n'a été trouvé !
+            </div>
+
+            <!-- Pagination -->
+            <div class="text-center mt-3">
+                <nav th:if="${totalPages > 1}">
+                    <ul class="pagination pagination-sm justify-content-center">
+                        <li class="page-item" th:classappend="${currentPage == 0 ? 'disabled' : ''}">
+                            <a class="page-link" th:href="@{/documents(page=${currentPage-1}, pageSize=${pageSize})}">&laquo;</a>
+                        </li>
+                        <li th:each="index: ${#numbers.sequence(0, totalPages - 1)}" 
+                            class="page-item" 
+                            th:classappend="${currentPage == index ? 'active' : ''}">
+                            <a class="page-link" th:href="@{/documents(page=${index}, pageSize=${pageSize})}" th:text="${index + 1}"></a>
+                        </li>
+                        <li class="page-item" th:classappend="${currentPage == totalPages - 1 ? 'disabled' : ''}">
+                            <a class="page-link" th:href="@{/documents(page=${currentPage+1}, pageSize=${pageSize})}">&raquo;</a>
+                        </li>
+                    </ul>
+                </nav>
+                
+                <!-- Page Number Display -->
+                <div class="mt-2 text-muted" th:if="${totalPages > 1}">
+                    Page <span th:text="${currentPage + 1}"></span> sur <span th:text="${totalPages}"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

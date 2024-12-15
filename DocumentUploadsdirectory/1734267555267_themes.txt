@@ -1,0 +1,20 @@
+1,Data Science
+2,Machine Learning
+3,Artificial Intelligence
+4,Deep Learning
+5,Statistics
+6,Big Data
+7,Computer Science
+8,Chemistry
+9,Physics
+10,Biology
+11,Medicine
+12,Engineering
+13,Mathematics
+14,Economics
+15,Finance
+16,Social Science
+17,History
+18,Political Science
+19,Literature
+20,Philosophy

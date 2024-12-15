@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Modifier un Document</title>
+    <link th:replace="layout/default-layout::link" />
+</head>
+<body th:replace="layout/default-layout::body(title='Modifier un Document')">
+    <div th:fragment="content">
+        <div class="container mt-5">
+            
+
+            <!-- Affichage des messages d'erreur -->
+            <div th:if="${error}" class="text-danger">
+                <p th:text="${error}"></p>
+            </div>
+
+            <!-- Formulaire pour modifier un document -->
+            <form th:action="@{/documents/edit/{id}(id=${document.id})}" method="post" enctype="multipart/form-data" class="bg-white p-4 shadow-sm rounded">
+                <!-- Titre -->
+                <div class="mb-3">
+                    <label for="title" class="form-label">Titre :</label>
+                    <input type="text" id="title" name="title" class="form-control" th:value="${document.title}" required />
+                </div>
+
+                <!-- Auteur -->
+                <div class="mb-3">
+                    <label for="author" class="form-label">Auteur :</label>
+                    <select id="author" name="author_id" class="form-select" required>
+                        <option value="" disabled>Sélectionnez un auteur</option>
+                        <option th:each="author : ${authors}" 
+                                th:value="${author.id}" 
+                                th:text="${author.name}" 
+                                th:selected="${document.author.id == author.id}">
+                        </option>
+                      </select>
+                    <span th:if="${#fields.hasErrors('author_id')}" th:errors="*{author_id}" class="invalid-feedback"></span>
+                </div>
+
+                <!-- Catégorie -->
+                <div class="mb-3">
+                    <label for="category" class="form-label">Catégorie :</label>
+                    <select id="category" name="category" class="form-select" required>
+                        <option value="" disabled>Choisissez une catégorie</option>
+                        <option th:each="category : ${categories}" th:value="${category.id}" th:text="${category.name}" th:selected="${document.category.id == category.id}"></option>
+                    </select>
+                </div>
+
+                <!-- Thème -->
+                <div class="mb-3">
+                    <label for="theme" class="form-label">Thème :</label>
+                    <input type="text" id="theme" name="theme" class="form-control" th:value="${document.theme}" required />
+                </div>
+
+                <!-- Résumé -->
+                <div class="mb-3">
+                    <label for="summary" class="form-label">Résumé :</label>
+                    <textarea id="summary" name="summary" class="form-control" th:text="${document.summary}" rows="4" required></textarea>
+                </div>
+
+                <!-- Mots-Clés -->
+                <div class="mb-3">
+                    <label for="keywords" class="form-label">Mots-Clés :</label>
+                    <input type="text" id="keywords" name="keywords" class="form-control" th:value="${document.keywords}" required/>
+                </div>
+
+                <!-- Date de Publication -->
+                <div class="mb-3">
+                    <label for="publish_date" class="form-label">Date de Publication :</label>
+                    <input type="date" id="publish_date" name="publish_date" class="form-control" th:value="${#dates.format(document.publishDate, 'yyyy-MM-dd')}" required />
+                </div>
+
+                <!-- Langue -->
+                <div class="mb-3">
+                    <label for="language" class="form-label">Langue :</label>
+                    <input type="text" id="language" name="language" class="form-control" th:value="${document.language}" required />
+                </div>
+
+                <!-- Format du fichier -->
+                <div class="mb-3">
+                    <label for="file_format" class="form-label">Format :</label>
+                    <input type="text" id="file_format" name="file_format" class="form-control" th:value="${document.fileFormat}" required />
+                </div>
+
+                <!-- Fichier -->
+                <div class="mb-3">
+                    <label for="documentFile" class="form-label">Mettre à jour le fichier :</label>
+                    <div th:if="${document.filePath != null}">
+                        <p>Fichier actuel : <a th:href="@{/documents/files/{filename}(filename=${document.filePath})}" target="_blank" th:text="${document.filePath}"></a></p>
+                    </div>
+                    <input type="file" id="documentFile" name="documentFile" class="form-control" />
+                </div>
+
+                <!-- Boutons -->
+                <div class="text-center">
+                    <button type="submit" class="btn btn-success">Sauvegarder les modifications</button>
+                    <a href="/" class="btn btn-secondary">Annuler</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script type="text/javascript"></script>
+</head>
+<body>
+ <header>
+     <nav class="navbar navbar-expand-lg bg-primary" data-bs-theme="dark">
+          <div class="container-fluid">
+            <a class="navbar-brand" href="#">Gestion des documents</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor01"
+              aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarColor01">
+              <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                  <a class="nav-link active" th:href="@{/index}">Home</a>
+
+                    <span class="visually-hidden">(current)</span>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="/documents">Documents Management</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="/authors">Authors Management</a>
+                </li>
+    
+              </ul>
+             
+        </nav>
+      <h1 class="container" th:text="${title}">Default title</h1>
+ </header>
+</body>
+</html>

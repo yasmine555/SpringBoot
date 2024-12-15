@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Add document</title>
+    <link th:replace="layout/default-layout::link" />
+</head>
+
+<body th:replace="layout/default-layout::body(title='Ajouter un Document')">
+
+    <div th:fragment="content">
+        <div class="container mt-5">
+            
+
+            <!-- Affichage des messages d'erreur -->
+            <div th:if="${error}" class="text-danger">
+                <p th:text="${error}"></p>
+            </div>
+
+            <form th:action="@{/documents/create}" th:object="${documentForm}" method="post" enctype="multipart/form-data">
+                <!-- Titre -->
+                <div class="mb-3">
+                    <label for="title" class="form-label">Titre :</label>
+                    <input type="text" id="title" name="title" class="form-control" th:field="*{title}"
+                        placeholder="Entrez le titre du document" required />
+                    <span th:if="${#fields.hasErrors('title')}" th:errors="*{title}" class="invalid-feedback"></span>
+                </div>
+
+                <!-- Auteur -->
+                <div class="mb-3">
+                    <label for="author" class="form-label">Auteur :</label>
+                    <select id="author" name="author_id" class="form-select" th:field="*{author_id}" required>
+                        <option value="" disabled selected>Sélectionnez un auteur</option>
+                        <option th:each="author : ${authors}" th:value="${author.id}" th:text="${author.name}"></option>
+                    </select>
+                    <span th:if="${#fields.hasErrors('author_id')}" th:errors="*{author_id}" class="invalid-feedback"></span>
+                </div>
+
+                <!-- Catégorie -->
+                <div class="mb-3">
+                    <label for="category" class="form-label">Catégorie :</label>
+                    <select id="category" name="category_id" class="form-select" th:field="*{category_id}" required>
+                        <option value="" disabled selected>Sélectionnez une catégorie</option>
+                        <option th:each="category : ${categories}" th:value="${category.id}" th:text="${category.name}"></option>
+                    </select>
+                    <span th:if="${#fields.hasErrors('category_id')}" th:errors="*{category_id}" class="invalid-feedback"></span>
+                </div>
+
+                <!-- Thème -->
+                <div class="mb-3">
+                    <label for="theme" class="form-label">Théme :</label>
+                    <select id="theme" name="theme_id" class="form-select" th:field="*{theme_id}" required>
+                        <option value="" disabled selected>Sélectionnez un théme</option>
+                        <option th:each="theme: ${themes}" th:value="${theme.id}" th:text="${theme.name}"></option>
+                    </select>
+                    <span th:if="${#fields.hasErrors('theme_id')}" th:errors="*{theme_id}" class="invalid-feedback"></span>
+                </div>
+
+                <!-- Résumé -->
+                <div class="mb-3">
+                    <label for="summary" class="form-label">Résumé :</label>
+                    <textarea id="summary" name="summary" class="form-control" th:field="*{summary}" rows="4"
+                        placeholder="Entrez un résumé du document" ></textarea>
+                    <span th:if="${#fields.hasErrors('summary')}" th:errors="*{summary}" class="invalid-feedback"></span>
+                </div>
+
+                <!-- Mots-Clés -->
+                <div class="mb-3">
+                    <label for="keywords" class="form-label">Mots-Clés :</label>
+                    <input type="text" id="keywords" name="keywords" class="form-control" th:field="*{keywords}"
+                        placeholder="Entrez les mots-clés (séparés par des virgules)" />
+                    <span th:if="${#fields.hasErrors('keywords')}" th:errors="*{keywords}" class="invalid-feedback"></span>
+                </div>
+
+                <!-- Date de publication -->
+                <div class="mb-3">
+                    <label for="publish_date" class="form-label">Date de publication :</label>
+                    <input type="date" id="publish_date" name="publishDate" class="form-control" th:field="*{publishDate}"
+                        required />
+                    <span th:if="${#fields.hasErrors('publishDate')}" th:errors="*{publishDate}" class="invalid-feedback"></span>
+                </div>
+
+                <!-- Langue -->
+                <div class="mb-3">
+                    <label for="language" class="form-label">Language :</label>
+                    <select id="language" name="language_id" class="form-select" th:field="*{language_id}" required>
+                        <option value="" disabled selected>Sélectionnez un théme</option>
+                        <option th:each="language: ${languages}" th:value="${language.id}" th:text="${language.name}"></option>
+                    </select>
+                    <span th:if="${#fields.hasErrors('language_id')}" th:errors="*{language_id}" class="invalid-feedback"></span>
+                </div>
+
+                <!-- Format du fichier -->
+                <div class="mb-3">
+                    <label for="fileFormat" class="form-label">File Format :</label>
+                    <select id="fileFormat" name="fileformat_id" class="form-select" th:field="*{fileformat_id}" required>
+                        <option value="" disabled selected>Sélectionnez un format</option>
+                        <option th:each="fileFormat: ${fileFormats}" th:value="${fileFormat.id}" th:text="${fileFormat.name}"></option>
+                    </select>
+                    <span th:if="${#fields.hasErrors('fileformat_id')}" th:errors="*{fileformat_id}" class="invalid-feedback"></span>
+                </div>
+
+
+                <!-- Fichier -->
+                <div class="mb-3">
+                    <label for="documentFile" class="form-label">Fichier :</label>
+                    <input type="file" id="documentFile" name="documentFile" class="form-control" required />
+                </div>
+
+                <!-- Bouton d'ajout -->
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary">Ajouter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</body>
+
+</html>
