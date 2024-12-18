@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Accueil Admin</title>
+    <link th:replace="layout/default-layout::link" />
+</head>
+
+<body th:replace="layout/default-layout::body(title='')">
+    <div th:fragment="content">
+        <div class="container mt-5">
+            <!-- Titre de la page -->
+            <h1 class="text-center mb-4">Bienvenue sur l'interface d'administration</h1>
+
+            <!-- Carte principale avec options d'administration -->
+            <div class="row justify-content-center">
+                <!-- Gestion des documents -->
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100 text-center">
+                        <div class="card-header bg-primary text-white">
+                            <h4>Gestion des Documents</h4>
+                        </div>
+                        <div class="card-body">
+                            <p>Consultez, ajoutez, modifiez ou supprimez des documents dans votre système.</p>
+                        </div>
+                        <div class="card-footer">
+                            <a th:href="@{/documents}" class="btn btn-primary">Accéder</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gestion des auteurs -->
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100 text-center">
+                        <div class="card-header bg-success text-white">
+                            <h4>Gestion des Auteurs</h4>
+                        </div>
+                        <div class="card-body">
+                            <p>Ajoutez, modifiez ou supprimez des auteurs dans le système.</p>
+                        </div>
+                        <div class="card-footer">
+                            <a th:href="@{/authors}" class="btn btn-success">Accéder</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gestion des catégories -->
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100 text-center">
+                        <div class="card-header bg-secondary text-white">
+                            <h4>Gestion des Catégories</h4>
+                        </div>
+                        <div class="card-body">
+                            <p>Ajoutez, modifiez ou supprimez des catégories dans le système.</p>
+                        </div>
+                        <div class="card-footer">
+                            <a th:href="@{/categories}" class="btn btn-secondary">Accéder</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section supplémentaire pour l'admin -->
+            <div class="text-center mt-4">
+                <p class="text-muted">
+                    Vous êtes connecté en tant qu'administrateur. 
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

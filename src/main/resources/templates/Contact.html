@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link th:replace="layout/user-layout::link" /> <!-- Assurez-vous que le fichier layout/user-layout existe -->
+    <title th:text="'Contact Us - ' + ${systemName}">Contact Us</title>
+</head>
+
+<body th:replace="layout/user-layout::body(title='Contact Us')">
+
+    <div th:fragment="content" class="container mt-5">
+        <!-- Success/Error Message Alert -->
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div class="row">
+            <!-- Colonne de gauche : Informations de contact -->
+            <div class="col-md-6">
+                <div class="contact-info">
+                    <h2 class="mb-4">Informations de Contact</h2>
+
+                    <div class="contact-details">
+                        <h4>Système de Gestion de Documents</h4>
+                        <p><strong>Adresse :</strong> Technopole de Sfax, Route de Tunis km 10, Sfax, Tunisie</p>
+                        <p><strong>Téléphone :</strong> +216 74 254 000</p>
+                        <p><strong>Email :</strong> contact@gestiondocuments.tn</p>
+                    </div>
+
+                    <div class="contact-details">
+                        <h4>Détails du Système</h4>
+                        <ul class="list-unstyled">
+                            <li>
+                                <strong>Nom du Système :</strong>
+                                <span th:text="${systemName}">Plateforme de Gestion Documentaire</span>
+                            </li>
+                            <li>
+                                <strong>Version :</strong>
+                                <span th:text="${systemVersion}">1.0.0</span>
+                            </li>
+                            <li>
+                                <strong>Capacités :</strong>
+                                <ul>
+                                    <li>Gestion des documents</li>
+                                    <li>Catégorisation avancée</li>
+                                    <li>Recherche et filtrage</li>
+                                    <li>Gestion des auteurs</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="contact-details">
+                        <h4>Heures d'Ouverture</h4>
+                        <p>Lundi - Vendredi : 8h00 - 17h00</p>
+                        <p>Samedi - Dimanche : Fermé</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Colonne de droite : Carte et formulaire de contact -->
+            <div class="col-md-6">
+                <div class="map-responsive">
+                    <iframe 
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3243.6661796430734!2d10.759954315314896!3d34.74674628042253!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x13002122ce56f02f%3A0x8cc85d24e2a34113!2sTechnopole%20de%20Sfax!5e0!3m2!1sfr!2stn!4v1689771234567!5m2!1sfr!2stn" 
+                        width="100%" 
+                        height="450" 
+                        style="border:0;" 
+                        allowfullscreen="" 
+                        loading="lazy" 
+                        referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
+                </div>
+
+                <div class="contact-form mt-4">
+                    <h3>Nous Contacter</h3>
+                    <form th:action="@{/contact/send}" method="post">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Nom Complet</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="message" class="form-label">Message</label>
+                            <textarea class="form-control" id="message" name="message" rows="4" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Envoyer le Message</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

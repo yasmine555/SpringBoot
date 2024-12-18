@@ -23,20 +23,27 @@ public class CategoryController {
     // Liste des categories
     @GetMapping
     public String listCategories(
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "5") int pageSize,
-        Model model) {
-        
-        // Use pagination
-        Page<Category> categoryPage = categoryService.getAllCategoriesPaginated(PageRequest.of(page, pageSize));
-        
-        model.addAttribute("categories", categoryPage.getContent());
-        model.addAttribute("currentPage", page);
-        model.addAttribute("pageSize", pageSize);
-        model.addAttribute("totalPages", categoryPage.getTotalPages());
-        
-        return "categories";
+    @RequestParam(defaultValue = "0") int page,
+    @RequestParam(defaultValue = "4") int pageSize,
+    @RequestParam(required = false) String searchName,
+    Model model) {
+    
+    // Utiliser la pagination avec recherche optionnelle
+    Page<Category> categoryPage;
+    if (searchName != null && !searchName.isEmpty()) {
+        categoryPage = categoryService.searchCategoriesByNamePaginated(searchName, PageRequest.of(page, pageSize));
+    } else {
+        categoryPage = categoryService.getAllCategoriesPaginated(PageRequest.of(page, pageSize));
     }
+    
+    model.addAttribute("categories", categoryPage.getContent());
+    model.addAttribute("currentPage", page);
+    model.addAttribute("pageSize", pageSize);
+    model.addAttribute("totalPages", categoryPage.getTotalPages());
+    model.addAttribute("searchName", searchName); // Ajouter pour conserver le terme de recherche
+    
+    return "categories";
+}
 
     // Ajouter une catégorie
     @GetMapping("/add")
@@ -46,7 +53,12 @@ public class CategoryController {
     }
 
     @PostMapping("/save")
-    public String saveCategory(@ModelAttribute Category category) {
+    public String saveCategory(@Valid @ModelAttribute Category category, BindingResult result, Model model) {
+        if (result.hasErrors()) {
+            System.out.println("Validation errors: " + result.getAllErrors());
+            model.addAttribute("category", category);
+            return "AddCategory";
+        }
         categoryService.saveCategory(category);
         return "redirect:/categories";
     }
@@ -74,7 +86,6 @@ public class CategoryController {
         return "redirect:/categories";
     }
 
-    // Supprimer une catégorie
     @PostMapping("/delete/{id}")
     public String deleteCategory(@PathVariable Long id) {
         categoryService.deleteCategory(id);

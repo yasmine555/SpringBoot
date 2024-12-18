@@ -25,23 +25,31 @@ public class AuthorController {
     @Autowired
     private AuthorService authorService;
 
-    // Liste des auteurs
+    
     @GetMapping
     public String listAuthors(
-    @RequestParam(defaultValue = "0") int page,
-    @RequestParam(defaultValue = "5") int pageSize,
-    Model model) {
-    
-    // Use pagination
-    Page<Author> authorPage = authorService.getAllAuthorsPaginated(PageRequest.of(page, pageSize));
-    
-    model.addAttribute("authors", authorPage.getContent());
-    model.addAttribute("currentPage", page);
-    model.addAttribute("pageSize", pageSize);
-    model.addAttribute("totalPages", authorPage.getTotalPages());
-    
-    return "auteurs";
-}
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "4") int pageSize,
+        @RequestParam(required = false) String searchQuery,
+        Model model) {
+
+        PageRequest pageRequest = PageRequest.of(page, pageSize);
+        Page<Author> authorPage;
+
+        if (searchQuery != null && !searchQuery.isEmpty()) {
+            authorPage = authorService.searchAuthorsByName(searchQuery, pageRequest);
+        } else {
+            authorPage = authorService.getAllAuthorsPaginated(pageRequest);
+        }
+
+        model.addAttribute("authors", authorPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("pageSize", pageSize);
+        model.addAttribute("totalPages", authorPage.getTotalPages());
+        model.addAttribute("searchQuery", searchQuery);
+
+        return "auteurs";
+    }
 
     // Ajouter un auteur
     @GetMapping("/add")
@@ -51,10 +59,16 @@ public class AuthorController {
     }
 
     @PostMapping("/save")
-    public String saveAuthor(@ModelAttribute Author author) {
-        authorService.saveAuthor(author);
-        return "redirect:/authors";
+    public String saveAuthor(@Valid @ModelAttribute Author author, BindingResult result, Model model) {
+    if (result.hasErrors()) {
+        System.out.println("Validation errors: " + result.getAllErrors());
+        model.addAttribute("author", author);
+        return "AddAuthor";
     }
+    authorService.saveAuthor(author);
+    return "redirect:/authors";
+}
+
 
     
     @GetMapping("/edit/{id}")

@@ -8,12 +8,20 @@
 
     <div th:fragment="content">
         <div class="container mt-5">
-            
+            <div class="row mb-3">
+                <div class="col">
+                    <form action="/categories" method="get">
+                        <button type="submit" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>Back
+                        </button>
+                    </form>
+                </div>
+            </div>
             <form action="#" th:action="@{/categories/edit/{id}(id=${category.id})}" th:object="${category}" method="post">
                 <input type="hidden" th:field="*{id}" />
                 <div class="mb-3">
                     <label for="name" class="form-label">Nom de la Catégorie :</label>
-                    <input type="text" id="name" th:field="*{name}" class="form-control" required />
+                    <input type="text" id="name" th:field="*{name}" class="form-control" />
                 </div>
                 <div class="mb-3">
                     <button type="submit" class="btn btn-primary">Mettre à jour</button>

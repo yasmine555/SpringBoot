@@ -8,11 +8,22 @@
 
     <div th:fragment="content">
         <div class="container mt-5">
+
+            <div class="row mb-3">
+                <div class="col">
+                    <form action="/authors" method="get">
+                        <button type="submit" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>Back
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
             <h2>Modifier un Auteur</h2>
             <form action="#" th:action="@{/authors/edit/{id}(id=${author.id})}" th:object="${author}" method="post">
                 <div class="mb-3">
                     <label for="name" class="form-label">Nom :</label>
-                    <input type="text" id="name" th:field="*{name}" class="form-control" required />
+                    <input type="text" id="name" th:field="*{name}" class="form-control" />
                 </div>
                 <div class="mb-3">
                     <label for="email" class="form-label">Email :</label>

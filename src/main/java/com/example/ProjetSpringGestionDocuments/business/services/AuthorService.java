@@ -6,6 +6,7 @@ import com.example.ProjetSpringGestionDocuments.DAO.Entity.Document;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 public interface AuthorService {
@@ -19,4 +20,5 @@ public interface AuthorService {
     void deleteAuthor(Long id);
 
     Page<Author> getAllAuthorsPaginated(Pageable pegeable);
+    Page<Author> searchAuthorsByName(String name, PageRequest pageRequest);
 }

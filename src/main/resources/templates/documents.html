@@ -18,7 +18,7 @@
     <div th:fragment="content">
         <div class="container mt-5">
             <!-- Formulaire de filtrage et recherche -->
-    <form method="get" action="/documents">
+        <form method="get" action="/documents">
         <div class="row mb-3">
             <!-- Recherche par titre -->
             <div class="col-md-4">
@@ -27,14 +27,12 @@
 
             <!-- Filtrage par catégorie -->
             <div class="col-md-3">
-               
-                
-                    <select name="sortByCategory" id="sortByCategory" class="form-control">
-                        <option value="">--Sélectionner une catégorie--</option>
-                        <option th:each="category : ${categories}" 
-                                th:value="${category.name}" 
-                                th:text="${category.name}"></option>
-                    </select>
+                <select name="sortByCategory" id="sortByCategory" class="form-control">
+                    <option value="">Sélectionner une catégorie</option>
+                    <option th:each="category : ${categories}" 
+                            th:value="${category.name}" 
+                            th:text="${category.name}"></option>
+                </select>
             </div>
 
             <!-- Filtrage par format de fichier -->
@@ -42,8 +40,12 @@
                 <select name="sortByFileFormat" class="form-control">
                     <option value="">Sélectionner un format</option>
                     <option th:value="PDF" th:text="'PDF'"></option>
+                    <option th:value="DOC" th:text="'DOC'"></option>
                     <option th:value="DOCX" th:text="'DOCX'"></option>
-                    <!-- Ajouter d'autres formats ici -->
+                    <option th:value="TXT" th:text="'TXT'"></option>
+                    <option th:value="XLS" th:text="'XLS'"></option>
+                    <option th:value="XLSX" th:text="'XLSX'"></option>
+                    <option th:value="CSV" th:text="'CSV'"></option>
                 </select>
             </div>
 
@@ -57,6 +59,10 @@
             <div class="mb-3">
                 <a th:href="@{/documents/create}" class="btn btn-primary">Ajouter un Document</a>
             </div>
+            <!-- Bouton pour réinitialiser les filtres -->
+            <a th:href="@{/documents}" class="btn btn-primary w-100">
+                Réinitialiser
+            </a>
 
             <!-- Tableau des documents -->
             <table class="table table-hover" th:unless="${#lists.isEmpty(documents)}">
@@ -83,6 +89,7 @@
                         <td th:text="${document.fileFormat ?: 'N/A'}"></td>
                         <td>
                             <div class="d-flex gap-2">
+                                <a th:href="@{/documents/view/{id}(id=${document.id})}" class="btn btn-light btn-sm">Voir</a>
                                 <a th:href="@{/documents/edit/{id}(id=${document.id})}" class="btn btn-success btn-sm">Modifier</a>
                                 <form th:action="@{/documents/delete/{id}(id=${document.id})}" method="post" onsubmit="confirmDeletion(event)">
                                     <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>

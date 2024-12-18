@@ -1,8 +1,6 @@
 package com.example.ProjetSpringGestionDocuments.Web.controller;
 
 import java.io.File;
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +29,8 @@ import com.example.ProjetSpringGestionDocuments.DAO.Repository.AuthorRepository;
 import com.example.ProjetSpringGestionDocuments.DAO.Repository.CategoryRepository;
 import com.example.ProjetSpringGestionDocuments.DAO.Repository.DocumentRepository;
 import com.example.ProjetSpringGestionDocuments.Web.model.DocumentForm;
+import com.example.ProjetSpringGestionDocuments.Web.model.FileFormat;
+import com.example.ProjetSpringGestionDocuments.Web.model.Language;
 import com.example.ProjetSpringGestionDocuments.business.services.AuthorService;
 import com.example.ProjetSpringGestionDocuments.business.services.CategoryService;
 import com.example.ProjetSpringGestionDocuments.business.services.DocumentService;
@@ -73,10 +73,36 @@ public class DocumentController {
             BindingResult bindingResult,
             @RequestParam MultipartFile documentFile,
             RedirectAttributes redirectAttributes) {
-        if (bindingResult.hasErrors()) {
-            redirectAttributes.addFlashAttribute("error", "Veuillez vérifier les champs obligatoires.");
-            return "redirect:/documents/create";
-        }
+                if (bindingResult.hasErrors()) {
+                    if (bindingResult.hasFieldErrors("title")) {
+                        redirectAttributes.addFlashAttribute("titleError", bindingResult.getFieldError("title").getDefaultMessage());
+                    }
+                    if (bindingResult.hasFieldErrors("author_id")) {
+                        redirectAttributes.addFlashAttribute("authorError", bindingResult.getFieldError("author_id").getDefaultMessage());
+                    }
+                    if (bindingResult.hasFieldErrors("category_id")) {
+                        redirectAttributes.addFlashAttribute("categoryError", bindingResult.getFieldError("category_id").getDefaultMessage());
+                    }
+                    if (bindingResult.hasFieldErrors("theme")) {
+                        redirectAttributes.addFlashAttribute("themeError", bindingResult.getFieldError("theme").getDefaultMessage());
+                    }
+                    if (bindingResult.hasFieldErrors("fileFormat")) {
+                        redirectAttributes.addFlashAttribute("fileFormatError", bindingResult.getFieldError("fileFormat").getDefaultMessage());
+                    }
+                    if (bindingResult.hasFieldErrors("publishDate")) {
+                        redirectAttributes.addFlashAttribute("publishDateError", bindingResult.getFieldError("publishDate").getDefaultMessage());
+                    }
+                    if (bindingResult.hasFieldErrors("language")) {
+                        redirectAttributes.addFlashAttribute("languageError", bindingResult.getFieldError("language").getDefaultMessage());
+                    }
+                    if (bindingResult.hasFieldErrors("summary")) {
+                        redirectAttributes.addFlashAttribute("summaryError", bindingResult.getFieldError("summary").getDefaultMessage());
+                    }
+                    if (bindingResult.hasFieldErrors("keywords")) {
+                        redirectAttributes.addFlashAttribute("keywordsError", bindingResult.getFieldError("keywords").getDefaultMessage());
+                    }
+                    return "redirect:/documents/create";
+                }
 
         try {
             Author author = authorRepository.findById(documentForm.getAuthor_id())
@@ -89,8 +115,8 @@ public class DocumentController {
             document.setAuthor(author);
             document.setCategory(category);
             document.setTheme(documentForm.getTheme());
-            document.setLanguage(documentForm.getLanguage());
-            document.setFileFormat(documentForm.getFileFormat());
+            document.setLanguage(Language.valueOf(documentForm.getLanguage()));
+            document.setFileFormat(FileFormat.valueOf(documentForm.getFileFormat()));
             document.setPublishDate(java.sql.Date.valueOf(documentForm.getPublishDate()));
             document.setFilePath(documentFile.getOriginalFilename());
 
@@ -108,24 +134,34 @@ public class DocumentController {
     @GetMapping
     public String listDocuments(
     @RequestParam(defaultValue = "0") int page,
-    @RequestParam(defaultValue = "3") int pageSize,
+    @RequestParam(defaultValue = "4") int pageSize,
+    @RequestParam(required = false) String searchQuery,
     @RequestParam(required = false) String sortByCategory,
-    @RequestParam(required = false) String sortByFileFormat,
+    @RequestParam(required = false) FileFormat sortByFileFormat,
     Model model) {
 
-    // Applique les filtres si nécessaires
+    // Préparer la pagination
     PageRequest pageRequest = PageRequest.of(page, pageSize);
 
-    // Si tu veux trier par catégorie ou par format de fichier
+    // Initialiser la page de documents
     Page<Document> documentPage;
-    if (sortByCategory != null && !sortByCategory.isEmpty()) {
+
+    // Logique de recherche et de filtrage
+    if (searchQuery != null && !searchQuery.isEmpty()) {
+        // Recherche par titre
+        documentPage = documentService.searchDocumentsByTitle(searchQuery, pageRequest);
+    } else if (sortByCategory != null && !sortByCategory.isEmpty()) {
+        // Trier par catégorie
         documentPage = documentService.getDocumentsSortedByCategory(sortByCategory, pageRequest);
-    } else if (sortByFileFormat != null && !sortByFileFormat.isEmpty()) {
+    } else if (sortByFileFormat != null) {
+        // Trier par format de fichier
         documentPage = documentService.getDocumentsSortedByFileFormat(sortByFileFormat, pageRequest);
     } else {
+        // Récupérer tous les documents
         documentPage = documentService.getAllDocumentPagination(pageRequest);
     }
 
+    // Liste des fichiers (optionnel, peut être conservé si nécessaire)
     List<String> fileNames = new ArrayList<>();
     File directory = new File(uploadDir);
     if (directory.exists() && directory.isDirectory()) {
@@ -136,105 +172,119 @@ public class DocumentController {
         }
     }
 
+    // Ajouter les attributs au modèle
     model.addAttribute("documents", documentPage.getContent());
     model.addAttribute("fileNames", fileNames);
     model.addAttribute("pageSize", pageSize);
     model.addAttribute("currentPage", page);
     model.addAttribute("totalPages", documentPage.getTotalPages());
+    model.addAttribute("searchQuery", searchQuery);
+    model.addAttribute("categories", categoryRepository.findAll());
 
     return "documents";
 }
 
-
 @GetMapping("/edit/{id}")
 public String showEditDocumentForm(@PathVariable Long id, Model model) {
-    Document document = documentService.getDocumentById(id);
-    if (document == null) {
-        model.addAttribute("error", "Document introuvable.");
-        return "redirect:/documents";
-    }
-
-    List<Author> authors = authorService.getAllAuthors();
-    DocumentForm documentForm = new DocumentForm();
-
-    // Remplir les données du formulaire avec les données du document
-    if (document.getAuthor() != null) {
-        documentForm.setAuthor_id(document.getAuthor().getId());
-    }
-    documentForm.setTitle(document.getTitle());
-    documentForm.setTheme(document.getTheme());
-    documentForm.setFileFormat(document.getFileFormat());
-    documentForm.setLanguage(document.getLanguage());
-    documentForm.setSummary(document.getSummary());
-    documentForm.setKeywords(document.getKeywords());
-    if (document.getPublishDate() != null) {
-        LocalDate localDate = document.getPublishDate().toInstant()
-                                       .atZone(ZoneId.systemDefault())
-                                       .toLocalDate();
-        documentForm.setPublishDate(localDate);
-    }
-    
-
-    model.addAttribute("authors", authors);
-    model.addAttribute("documentForm", documentForm);
-
-    return "editDocument";
-}
-
-@PostMapping("/edit/{id}")
-public String editDocument(@PathVariable Long id, @ModelAttribute DocumentForm documentForm, BindingResult result,
-                            Model model) {
     try {
-        // Vérifier si le document existe
-        Document document = documentRepository.findById(id).orElse(null);
+        Document document = documentService.getDocumentById(id);
         if (document == null) {
             model.addAttribute("error", "Document introuvable.");
             return "redirect:/documents";
         }
 
-        // Mettre à jour les propriétés du document
-        document.setTitle(documentForm.getTitle());
-        document.setTheme(documentForm.getTheme());
-        document.setFileFormat(documentForm.getFileFormat());
-        document.setLanguage(documentForm.getLanguage());
-        document.setSummary(documentForm.getSummary());
-        document.setKeywords(documentForm.getKeywords());
+        DocumentForm documentForm = new DocumentForm();
+        documentForm.setId(document.getId()); 
+        documentForm.setTitle(document.getTitle());
+        documentForm.setSummary(document.getSummary());
+        documentForm.setKeywords(document.getKeywords());
+        documentForm.setPublishDate(new java.sql.Date(document.getPublishDate().getTime()).toLocalDate());
+        documentForm.setAuthor_id(document.getAuthor().getId());
+        documentForm.setCategory_id(document.getCategory().getId());
+        documentForm.setTheme(document.getTheme());
+        documentForm.setLanguage(document.getLanguage().name());
+        documentForm.setFileFormat(document.getFileFormat().name());
 
-        // Validation de la date
-        try {
-            document.setPublishDate(java.sql.Date.valueOf(documentForm.getPublishDate()));
-        } catch (IllegalArgumentException e) {
-            model.addAttribute("error", "Date invalide.");
+        model.addAttribute("documentForm", documentForm);
+        model.addAttribute("document", document);
+        model.addAttribute("authors", authorRepository.findAll());
+        model.addAttribute("categories", categoryRepository.findAll());
+
+        return "editDocument";
+    } catch (Exception e) {
+        logger.error("Error loading document for editing", e);
+        model.addAttribute("error", "Erreur interne : " + e.getMessage());
+        return "redirect:/documents";
+    }
+}
+
+@PostMapping("/edit/{id}")
+public String editDocument(
+    @PathVariable Long id,
+    @Valid @ModelAttribute("documentForm") DocumentForm documentForm,
+    BindingResult result,
+    @RequestParam("documentFile") MultipartFile documentFile,
+    Model model) {
+    try {
+        if (result.hasErrors()) {
+            model.addAttribute("authors", authorRepository.findAll());
+            model.addAttribute("categories", categoryRepository.findAll());
+            
             return "editDocument";
         }
 
-        // Assigner l'auteur
-        Author author = authorService.getAuthorById(documentForm.getAuthor_id());
-        if (author == null) {
+        Document document = documentService.getDocumentById(id);
+        if (document == null) {
+            model.addAttribute("error", "Document introuvable.");
+            return "redirect:/documents";
+        }
+
+        document.setTitle(documentForm.getTitle());
+        document.setSummary(documentForm.getSummary());
+        document.setKeywords(documentForm.getKeywords());
+        document.setPublishDate(java.sql.Date.valueOf(documentForm.getPublishDate()));
+        document.setAuthor(authorService.getAuthorById(documentForm.getAuthor_id()));
+        document.setCategory(categoryRepository.findById(documentForm.getCategory_id()).orElse(null));
+        
+
+        if (documentFile != null && !documentFile.isEmpty()) {
+            documentService.updateDocument(id, document, documentFile);
+        }
+        if (authorService.getAuthorById(documentForm.getAuthor_id()) == null) {
             model.addAttribute("error", "Auteur introuvable.");
             return "editDocument";
         }
-        document.setAuthor(author);
-
-        // Gérer le fichier
-        MultipartFile file = documentForm.getDocumentFile();
-        if (file != null && !file.isEmpty()) {
-            documentService.updateDocument(id, document, file);
-        } else {
-            documentService.updateDocument(id, document, null); // ou ignorer le fichier
+        
+        if (categoryRepository.findById(documentForm.getCategory_id()).isEmpty()) {
+            model.addAttribute("error", "Catégorie introuvable.");
+            return "editDocument";
         }
+        
+
+        documentRepository.save(document);
 
         return "redirect:/documents";
+
     } catch (Exception e) {
-        model.addAttribute("error", "Erreur lors de la mise à jour du document.");
+        logger.error("Error while updating document", e);
+        model.addAttribute("error", "Erreur lors de la mise à jour du document : " + e.getMessage());
         return "editDocument";
     }
 }
 
 
+
     @PostMapping("/delete/{id}")
-    public String deleteDocumentPost(@PathVariable Long id) {
+    public String deleteDocument(@PathVariable Long id) {
         documentRepository.deleteById(id);
         return "redirect:/documents";
+    }
+
+    @GetMapping("/view/{id}")
+    public String viewDocument(@PathVariable Long id, Model model) {
+        Document document = documentService.getDocumentById(id);
+        model.addAttribute("document", document);
+
+        return "DetailDocumentUser";
     }
 }

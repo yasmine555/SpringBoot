@@ -17,7 +17,7 @@
             <div class="collapse navbar-collapse" id="navbarColor01">
               <ul class="navbar-nav me-auto">
                 <li class="nav-item">
-                  <a class="nav-link active" href="/">Home
+                  <a class="nav-link active" href="/admin/home">Home
                     <span class="visually-hidden">(current)</span>
                   </a>
                 </li>
@@ -32,6 +32,19 @@
                 </li>
     
               </ul>
+              <!--logout form for logged users-->
+              <ul class="navbar-nav ms-auto me-4" sec:authorize="isAuthenticated()">
+            <!-- <ul class="navbar-nav ms-auto me-4"> -->
+              <li class="nav-item">
+                <form th:action="@{/logout}" method="post" class="row">
+                  <div class="col">
+                    <span class="text-secondary" sec:authentication="name"></span>
+                    <span class="text-secondary" sec:authentication="principal.authorities">ROLE</span>
+                  </div>
+                  <input class="btn btn-danger col" type="submit" value="Logout" />
+                </form>
+              </li>
+            </ul>
              
         </nav>
       <h1 class="container" th:text="${title}">Default title</h1>

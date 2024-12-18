@@ -5,6 +5,7 @@ import com.example.ProjetSpringGestionDocuments.DAO.Entity.Document;
 import com.example.ProjetSpringGestionDocuments.DAO.Repository.AuthorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -48,6 +49,9 @@ public class AuthorServiceImpl implements AuthorService {
         return this.authorRepository.findAll(pegeable);
 
     }
-
+    @Override
+    public Page<Author> searchAuthorsByName(String name, PageRequest pageRequest) {
+        return authorRepository.findByNameContainingIgnoreCase(name, pageRequest);
+    }
     
 }

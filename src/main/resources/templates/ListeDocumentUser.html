@@ -10,36 +10,104 @@
         <div class="container mt-5">
             
             <!-- Filtres avancés -->
-            <div th:if="${searchQuery != null || documentType != null || documentGenre != null || author != null}" class="mb-4">
-                <h3>Filtrer par :</h3>
-                <form th:action="@{/ListeDocumentUser}" method="get">
-                    <div class="mb-3">
-                        <label for="documentType" class="form-label">Type de document</label>
-                        <select id="documentType" name="documentType" class="form-select">
-                            <option value="">Sélectionnez un type</option>
-                            <option value="thesis" th:selected="${documentType == 'thesis'}">Thèse</option>
-                            <option value="article" th:selected="${documentType == 'article'}">Article</option>
-                            <option value="report" th:selected="${documentType == 'report'}">Rapport</option>
-                        </select>
+            <div class="container mt-5">
+                <form method="get" action="/ListeDocumentUser" class="mb-4">
+                    <div class="row">
+                        <!-- Recherche par titre/mots-clés -->
+                        <div class="col-md-10 mb-3">
+                        <label class="form-label">Recherche</label>
+                        <input type="text" class="form-control" name="searchQuery" 
+                       placeholder="Rechercher par titre" 
+                       th:value="${searchQuery}">
                     </div>
-                    <div class="mb-3">
-                        <label for="documentGenre" class="form-label">Genre du document</label>
-                        <select id="documentGenre" name="documentGenre" class="form-select">
-                            <option value="">Sélectionnez un genre</option>
-                            <option value="research" th:selected="${documentGenre == 'research'}">Recherche</option>
-                            <option value="presentation" th:selected="${documentGenre == 'presentation'}">Présentation</option>
-                            <option value="publication" th:selected="${documentGenre == 'publication'}">Publication</option>
-                        </select>
+                        <!-- Bouton de recherche -->
+                        <div class="col-md-6 mb-3">
+                        <button type="submit" class="btn btn-primary w-100" id="searchButton">
+                        Rechercher
+                         </button>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label for="author" class="form-label">Auteur</label>
-                        <input type="text" id="author" name="author" class="form-control" th:value="${author}" placeholder="Nom de l'auteur" />
+
+                    <div class="row">
+                        <!-- Filtrage par catégorie -->
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Catégorie</label>
+                            <select name="sortByCategory" id="sortByCategory" class="form-control">
+                                <option value="">Sélectionner une catégorie</option>
+                                <option th:each="category : ${categories}" 
+                                        th:value="${category.name}" 
+                                        th:text="${category.name}"></option>
+                            </select>
+                        </div>
+
+                        <!-- Filtrage par format de fichier -->
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Format de fichier</label>
+                            <select name="fileFormat" class="form-select">
+                                <option value="">Sélectionner un format</option>
+                                <option value="PDF">PDF</option>
+                                <option value="DOC">DOC</option>
+                                <option value="DOCX">DOCX</option>
+                                <option value="PPT">PPT</option>
+                                <option value="PPTX">PPTX</option>
+                                <option value="TXT">TXT</option>
+                                <option value="XLS">XLS</option>
+                                <option value="XLSX">XLSX</option>
+                                <option value="CSV">CSV</option>
+                            </select>
+                        </div>
+
+                        <!-- Filtrage par plage de dates -->
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Date de publication</label>
+                            <div class="input-group">
+                                <input type="date" name="startDate" class="form-control" 
+                                       placeholder="Date début" 
+                                       th:value="${startDate}">
+                                <input type="date" name="endDate" class="form-control" 
+                                       placeholder="Date fin" 
+                                       th:value="${endDate}">
+                            </div>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label for="searchQuery" class="form-label">Recherche</label>
-                        <input type="text" id="searchQuery" name="searchQuery" class="form-control" th:value="${searchQuery}" placeholder="Titre ou auteur" />
+
+                    <!-- Tri par radio buttons -->
+                    <div class="row mb-3">
+                        <label class="form-label">Trier par</label>
+                        <div class="col-md-12">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="sortBy" id="sortByDate" value="publishDate" 
+                                       th:checked="${sortBy == 'publishDate'}">
+                                <label class="form-check-label" for="sortByDate">Date de publication</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="sortBy" id="sortByTitle" value="title"
+                                       th:checked="${sortBy == 'title'}">
+                                <label class="form-check-label" for="sortByTitle">Titre</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="sortBy" id="sortByAuthor" value="author.name"
+                                       th:checked="${sortBy == 'author.name'}">
+                                <label class="form-check-label" for="sortByAuthor">Auteur</label>
+                            </div>
+                        </div>
                     </div>
-                    <button type="submit" class="btn btn-primary">Appliquer le filtre</button>
+
+                    <!-- Boutons de soumission et réinitialisation -->
+                    <div class="row">
+                    <div class="col-6">
+                        <button type="submit" class="btn btn-primary w-100">
+                        Appliquer les filtres
+                        </button>
+                    </div>
+                    <div class="col-6">
+                    <!-- Bouton pour réinitialiser les filtres -->
+                    <a th:href="@{/ListeDocumentUser}" class="btn btn-primary w-100">
+                        Réinitialiser
+                    </a>
+                    </div>
+                    </div>
+
                 </form>
             </div>
 
@@ -47,7 +115,6 @@
             <table class="table table-hover" th:unless="${#lists.isEmpty(documents)}">
                 <thead class="table-dark">
                     <tr>
-                        <th>ID</th>
                         <th>Titre</th>
                         <th>Auteur</th>
                         <th>Catégorie</th>
@@ -59,7 +126,6 @@
                 </thead>
                 <tbody>
                     <tr th:each="document, state : ${documents}" th:class="${state.even} ? 'table-light' : ''">
-                        <td th:text="${document.id}"></td>
                         <td th:text="${document.title}"></td>
                         <td th:text="${document.author?.name}"></td>
                         <td th:text="${document.category?.name}"></td>
@@ -74,6 +140,7 @@
                         </td>
                     </tr>
                 </tbody>
+                
             </table>
 
             <!-- Message si la liste est vide -->
@@ -85,13 +152,37 @@
             <div>
                 <ul class="pagination pagination-sm">
                     <li class="page-item" th:classappend="${currentPage==0?'disabled':''}">
-                        <a class="page-link" th:href="@{/ListeDocumentUser?page=${currentPage-1}}">&laquo;</a>
+                        <a class="page-link" 
+                            th:href="@{/ListeDocumentUser(page=${currentPage-1}, 
+                                             searchQuery=${searchQuery}, 
+                                             sortByCategory=${sortByCategory}, 
+                                             fileFormat=${fileFormat}, 
+                                             startDate=${startDate}, 
+                                             endDate=${endDate}, 
+                                             sortBy=${sortBy})}">&laquo;</a>
                     </li>
-                    <li th:each="index: ${#numbers.sequence(0,totalPages -1)}" class="page-item" th:classappend="${currentPage==index ?'active':''}">
-                        <a class="page-link" th:href="@{/ListeDocumentUser?page=${index}}" th:text="${index+1}"></a>
+                    <li th:each="index: ${#numbers.sequence(0,totalPages -1)}" 
+                        class="page-item" 
+                         th:classappend="${currentPage==index ?'active':''}">
+                        <a class="page-link" 
+                        th:href="@{/ListeDocumentUser(page=${index}, 
+                                             searchQuery=${searchQuery}, 
+                                             category=${category}, 
+                                             fileFormat=${fileFormat}, 
+                                             startDate=${startDate}, 
+                                             endDate=${endDate}, 
+                                             sortBy=${sortBy})}" 
+                        th:text="${index+1}"></a>
                     </li>
                     <li class="page-item" th:classappend="${currentPage == totalPages -1 ?'disabled':''}">
-                        <a class="page-link" th:href="@{/ListeDocumentUser?page=${currentPage+1}}">&raquo;</a>
+                        <a class="page-link" 
+                        th:href="@{/ListeDocumentUser(page=${currentPage+1}, 
+                                             searchQuery=${searchQuery}, 
+                                             category=${category}, 
+                                             fileFormat=${fileFormat}, 
+                                             startDate=${startDate}, 
+                                             endDate=${endDate}, 
+                                             sortBy=${sortBy})}">&raquo;</a>
                     </li>
                 </ul>
             </div>

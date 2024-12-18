@@ -13,6 +13,22 @@
 <body th:replace="layout/default-layout::body(title='Liste des Catégories')">
     <div th:fragment="content">
         <div class="container mt-5">
+
+            
+            <!-- Formulaire de recherche -->
+        <form method="get" action="/categories" class="mb-4">
+            <div class="row">
+                <div class="col-md-8">
+                    <input type="text" class="form-control" name="searchName" 
+                           placeholder="Rechercher une catégorie par nom" 
+                           th:value="${searchName}">
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary w-100">Rechercher</button>
+                </div>
+            </div>
+        </form>
+
             <div class="mb-3">
                 <a th:href="@{/categories/add}" class="btn btn-primary">Ajouter une Catégorie</a>
             </div>

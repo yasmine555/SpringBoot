@@ -11,48 +11,71 @@
 
     <div th:fragment="content">
         <div class="container mt-5">
-            
 
-            <!-- Affichage des messages d'erreur -->
-            <div th:if="${error}" class="text-danger">
-                <p th:text="${error}"></p>
+            <div class="row mb-3">
+                <div class="col">
+                    <form action="/documents" method="get">
+                        <button type="submit" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>Back
+                        </button>
+                    </form>
+                </div>
             </div>
+            
+        <!-- New comprehensive error display -->
+    <div th:if="${#fields.hasErrors('documentForm')}" class="alert alert-danger">
+        <ul>
+            <li th:each="err : ${#fields.errors('documentForm')}" th:text="${err}"></li>
+        </ul>
+    </div>
+
+        <!-- Global errors -->
+    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+    
+
 
             <form th:action="@{/documents/create}" th:object="${documentForm}" method="post" enctype="multipart/form-data">
                 <!-- Titre -->
                 <div class="mb-3">
                     <label for="title" class="form-label">Titre :</label>
                     <input type="text" id="title" name="title" class="form-control" th:field="*{title}"
-                        placeholder="Entrez le titre du document" required />
+                        placeholder="Entrez le titre du document"  />
                     <span th:if="${#fields.hasErrors('title')}" th:errors="*{title}" class="invalid-feedback"></span>
+                    <div th:if="${titleError}" class="alert alert-danger" th:text="${titleError}"></div>
                 </div>
 
                 <!-- Auteur -->
                 <div class="mb-3">
                     <label for="author" class="form-label">Auteur :</label>
-                    <select id="author" name="author_id" class="form-select" th:field="*{author_id}" required>
+                    <select id="author" name="author_id" class="form-select" th:field="*{author_id}" >
                         <option value="" disabled selected>Sélectionnez un auteur</option>
                         <option th:each="author : ${authors}" th:value="${author.id}" th:text="${author.name}"></option>
                     </select>
                     <span th:if="${#fields.hasErrors('author_id')}" th:errors="*{author_id}" class="invalid-feedback"></span>
+                    <div th:if="${authorError}" class="alert alert-danger" th:text="${authorError}"></div>
+
                 </div>
 
                 <!-- Catégorie -->
                 <div class="mb-3">
                     <label for="category" class="form-label">Catégorie :</label>
-                    <select id="category" name="category_id" class="form-select" th:field="*{category_id}" required>
+                    <select id="category" name="category_id" class="form-select" th:field="*{category_id}" >
                         <option value="" disabled selected>Sélectionnez une catégorie</option>
                         <option th:each="category : ${categories}" th:value="${category.id}" th:text="${category.name}"></option>
                     </select>
                     <span th:if="${#fields.hasErrors('category_id')}" th:errors="*{category_id}" class="invalid-feedback"></span>
+                    <div th:if="${categoryError}" class="alert alert-danger" th:text="${categoryError}"></div>
+
                 </div>
 
                 <!-- Thème -->
                 <div class="mb-3">
                     <label for="theme" class="form-label">Thème :</label>
                     <input type="text" id="theme" name="theme" class="form-control" th:field="*{theme}"
-                        placeholder="Entrez le thème du document" required />
+                        placeholder="Entrez le thème du document"/>
                     <span th:if="${#fields.hasErrors('theme')}" th:errors="*{theme}" class="invalid-feedback"></span>
+                    <div th:if="${themeError}" class="alert alert-danger" th:text="${themeError}"></div>
+
                 </div>
 
                 <!-- Résumé -->
@@ -61,6 +84,9 @@
                     <textarea id="summary" name="summary" class="form-control" th:field="*{summary}" rows="4"
                         placeholder="Entrez un résumé du document" ></textarea>
                     <span th:if="${#fields.hasErrors('summary')}" th:errors="*{summary}" class="invalid-feedback"></span>
+                    <div th:if="${summaryError}" class="alert alert-danger" th:text="${summaryError}"></div>
+
+                    
                 </div>
 
                 <!-- Mots-Clés -->
@@ -69,36 +95,58 @@
                     <input type="text" id="keywords" name="keywords" class="form-control" th:field="*{keywords}"
                         placeholder="Entrez les mots-clés (séparés par des virgules)" />
                     <span th:if="${#fields.hasErrors('keywords')}" th:errors="*{keywords}" class="invalid-feedback"></span>
+                    <div th:if="${keywordsError}" class="alert alert-danger" th:text="${keywordsError}"></div>
+
                 </div>
 
                 <!-- Date de publication -->
                 <div class="mb-3">
                     <label for="publish_date" class="form-label">Date de publication :</label>
                     <input type="date" id="publish_date" name="publishDate" class="form-control" th:field="*{publishDate}"
-                        required />
+                         />
                     <span th:if="${#fields.hasErrors('publishDate')}" th:errors="*{publishDate}" class="invalid-feedback"></span>
+                    <div th:if="${publishDateError}" class="alert alert-danger" th:text="${publishDateError}"></div>
+
                 </div>
 
                 <!-- Langue -->
                 <div class="mb-3">
                     <label for="language" class="form-label">Langue :</label>
-                    <input type="text" id="language" name="language" class="form-control" th:field="*{language}"
-                        placeholder="Entrez la langue (ex : Français)" required />
+                    <select id="language" name="language" class="form-select" th:field="*{language}" >
+                        <option value="" disabled selected>Sélectionnez une langue</option>
+                        <option value="ENGLISH">English</option>
+                        <option value="FRENCH">French</option>
+                        <option value="ARABIC">Arabic</option>
+                        <option value="SPANISH">Spanish</option>
+                        <option value="GERMAN">German</option>
+                    </select>
                     <span th:if="${#fields.hasErrors('language')}" th:errors="*{language}" class="invalid-feedback"></span>
+                        <div th:if="${languageError}" class="alert alert-danger" th:text="${languageError}"></div>
+
                 </div>
 
                 <!-- Format du fichier -->
                 <div class="mb-3">
                     <label for="fileFormat" class="form-label">Format du fichier :</label>
-                    <input type="text" id="fileFormat" name="fileFormat" class="form-control" th:field="*{fileFormat}"
-                        placeholder="Exemple : PDF, DOCX" required />
+                    <select id="fileFormat" name="fileFormat" class="form-select" th:field="*{fileFormat}" >
+                        <option value="" disabled selected>Sélectionnez un format</option>
+                        <option value="PDF">PDF</option>
+                        <option value="DOC">DOC</option>
+                        <option value="DOCX">DOCX</option>
+                        <option value="TXT">TXT</option>
+                        <option value="XLS">XLS</option>
+                        <option value="XLSX">XLSX</option>
+                        <option value="CSV">CSV</option>
+                    </select>                    
                     <span th:if="${#fields.hasErrors('fileFormat')}" th:errors="*{fileFormat}" class="invalid-feedback"></span>
+                    <div th:if="${fileFormatError}" class="alert alert-danger" th:text="${fileFormatError}"></div>
+
                 </div>
 
                 <!-- Fichier -->
                 <div class="mb-3">
                     <label for="documentFile" class="form-label">Fichier :</label>
-                    <input type="file" id="documentFile" name="documentFile" class="form-control" required />
+                    <input type="file" id="documentFile" name="documentFile" class="form-control"  />
                 </div>
 
                 <!-- Bouton d'ajout -->

@@ -2,9 +2,14 @@ package com.example.ProjetSpringGestionDocuments.DAO.Entity;
 
 import java.util.Date;
 
+import com.example.ProjetSpringGestionDocuments.Web.model.FileFormat;
+import com.example.ProjetSpringGestionDocuments.Web.model.Language;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -47,7 +52,9 @@ public class Document {
     private String theme;
 
     @Column(name = "language", length = 250, nullable = true)
-    private String language;
+    @Enumerated(EnumType.STRING)
+    private Language language;
+
 
     @Column(name = "Summary" , nullable = true)
     private String summary;
@@ -58,7 +65,8 @@ public class Document {
 
 
     @Column(name = "File_Format", length = 250, nullable = false)
-    private String fileFormat;
+    @Enumerated(EnumType.STRING)
+    private FileFormat fileFormat;
 
     @Column(name = "file_path", length = 250, nullable = false)
     private String filePath;

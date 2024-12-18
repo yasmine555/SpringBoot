@@ -7,7 +7,7 @@
 </head>
 <body>
  <header>
-        <nav class="navbar navbar-expand-lg bg-secondary" data-bs-theme="light">
+    <nav class="navbar navbar-expand-lg bg-dark" data-bs-theme="dark">
             <div class="container-fluid">
                 <a class="navbar-brand" href="#">Welcome</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor01"
@@ -23,13 +23,20 @@
                         <li class="nav-item">
                             <a class="nav-link" href="/ListeDocumentUser/AboutUs">About Us</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/contact">Contact</a>
+                        </li>
                         
                     </ul>
-                    <ul class="navbar-nav">
+                    <!-- Bouton Connexion pour les utilisateurs non authentifiés -->
+                    <ul class="navbar-nav ms-auto me-4" sec:authorize="!isAuthenticated()">
                         <li class="nav-item">
-                            <a class="nav-link btn btn-primary text-white ms-2" href="/login">Connexion</a>
+                            <form th:action="@{/login}" method="get" class="row">
+                                <input class="btn btn-danger col" type="submit" value="Connexion" />
+                            </form>
                         </li>
                     </ul>
+
                 </div>
             </div>
         </nav>

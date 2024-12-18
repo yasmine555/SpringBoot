@@ -9,6 +9,7 @@
 
     <div th:fragment="content">
         <div class="page-content">
+            
 
             <div class="document-details">
                 <h3 th:text="${document.title}"></h3>
@@ -21,7 +22,7 @@
                 <p><strong>Format :</strong> <span th:text="${document.fileFormat}"></span></p>
                 <p><strong>Mots-Clés :</strong> <span th:text="${document.keywords}"></span></p>
                 <div class="actions">
-                    <a th:href="@{/documents/download/{id}(id=${document.id})}" class="button">Télécharger le fichier</a>
+                    <a th:href="@{/ListeDocumentUser/download/{id}(id=${document.id})}" class="button">Télécharger le fichier</a>
                     <a href="/documents" class="button secondary">Retour</a>
                 </div>
             </div>

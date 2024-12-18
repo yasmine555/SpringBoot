@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -12,11 +13,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.ProjetSpringGestionDocuments.DAO.Entity.Document;
 import com.example.ProjetSpringGestionDocuments.DAO.Repository.DocumentRepository;
+import com.example.ProjetSpringGestionDocuments.Web.model.FileFormat;
 import com.example.ProjetSpringGestionDocuments.business.services.DocumentService;
 
 @Service
@@ -47,9 +51,14 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public Document getDocumentById(Long id) {
-        return documentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Document non trouvé pour l'ID : " + id));
+    if (id == null) {
+        throw new IllegalArgumentException("L'ID du document ne peut pas être null");
     }
+    
+    return documentRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Document non trouvé pour l'ID : " + id));
+}
+
 
     @Override
     public void saveDocument(Document document, MultipartFile file) throws IOException {
@@ -111,12 +120,6 @@ public class DocumentServiceImpl implements DocumentService {
         }
     }
 
-    @Override
-    public Document findById(Long id) {
-        return documentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Document non trouvé pour l'ID : " + id));
-    }
-
     public List<Document> getDocumentsByAuthorId(int authorId) {
         return documentRepository.findByAuthorId(authorId);
     }
@@ -136,43 +139,10 @@ public class DocumentServiceImpl implements DocumentService {
         return this.documentRepository.findAll(sortedPageable);
     }
 
-    /*
-     * public List<Document> getDocumentsWithFilters(String searchQuery, String
-     * documentType, String documentGenre, String author, int page, int pageSize,
-     * String sortBy) {
-     * Pageable pageable = PageRequest.of(page, pageSize, sortBy.equals("asc") ?
-     * Sort.by("publishDate").ascending() : Sort.by("publishDate").descending());
-     * 
-     * List<Document> documents = documentRepository.findAll(); // Start with all
-     * documents
-     * 
-     * // Apply filters if any are provided
-     * if (searchQuery != null && !searchQuery.isEmpty()) {
-     * documents =
-     * documentRepository.findByTitleContainingOrAuthor_NameContaining(searchQuery,
-     * searchQuery);
-     * }
-     * if (documentType != null && !documentType.isEmpty()) {
-     * // Implement filtering based on documentType (e.g., filter by a specific
-     * category)
-     * // You'll need to add logic to filter by document type (category)
-     * }
-     * if (documentGenre != null && !documentGenre.isEmpty()) {
-     * // Implement filtering based on documentGenre (e.g., filter by specific
-     * theme)
-     * // You'll need to add logic to filter by document genre (theme)
-     * }
-     * if (author != null && !author.isEmpty()) {
-     * documents = documentRepository.findByAuthorId(authorId);
-     * }
-     * 
-     * return documents;
-     * }
-     */
 
-    public int getTotalDocumentsCount() {
-        return (int) documentRepository.count();
-    }
+     public int getTotalDocumentsCount() {
+        return documentRepository.findAll().size();
+      }
 
 
     @Override
@@ -200,12 +170,70 @@ public class DocumentServiceImpl implements DocumentService {
         return documentRepository.findByCategory_NameOrderByCategory_NameAsc(sortByCategory, pageRequest);
     }
     
-    public Page<Document> getDocumentsSortedByFileFormat(String sortByFileFormat, PageRequest pageRequest) {
+    public Page<Document> getDocumentsSortedByFileFormat(FileFormat sortByFileFormat, PageRequest pageRequest) {
         return documentRepository.findByFileFormatOrderByFileFormatAsc(sortByFileFormat, pageRequest);
     }
     
+    public Page<Document> searchDocumentsByTitle(String searchQuery, PageRequest pageRequest) {
+        return documentRepository.findByTitleContainingIgnoreCase(searchQuery, pageRequest);
+    }
+    
+    public Page<Document> searchDocumentsWithFilters(
+        String searchQuery, 
+        String category, 
+        String fileFormat, 
+        
+        LocalDate startDate, 
+        LocalDate endDate, 
+        Pageable pageable) {
+        
+        // Implémentation des critères de recherche avec Spring Data JPA Specifications
+        Specification<Document> spec = Specification.where(null);
+    
+        // Recherche par titre ou mots-clés
+        if (StringUtils.hasText(searchQuery)) {
+            spec = spec.and((root, query, criteriaBuilder) -> 
+                criteriaBuilder.or(
+                    criteriaBuilder.like(criteriaBuilder.lower(root.get("title")), "%" + searchQuery.toLowerCase() + "%"),
+                    criteriaBuilder.like(criteriaBuilder.lower(root.get("keywords")), "%" + searchQuery.toLowerCase() + "%")
+                )
+            );
+        }
+    
+        // Filtrage par catégorie
+        if (StringUtils.hasText(category)) {
+            spec = spec.and((root, query, criteriaBuilder) -> 
+                criteriaBuilder.equal(root.get("category").get("name"), category)
+            );
+        }
+    
+        // Filtrage par format de fichier
+        if (StringUtils.hasText(fileFormat)) {
+            spec = spec.and((root, query, criteriaBuilder) -> 
+                criteriaBuilder.equal(criteriaBuilder.lower(root.get("fileFormat")), fileFormat.toLowerCase())
+            );
+        }
     
     
+        // Filtrage par plage de dates de publication
+        if (startDate != null && endDate != null) {
+            spec = spec.and((root, query, criteriaBuilder) -> 
+                criteriaBuilder.between(root.get("publishDate"), startDate, endDate)
+            );
+        } else if (startDate != null) {
+            spec = spec.and((root, query, criteriaBuilder) -> 
+                criteriaBuilder.greaterThanOrEqualTo(root.get("publishDate"), startDate)
+            );
+        } else if (endDate != null) {
+            spec = spec.and((root, query, criteriaBuilder) -> 
+                criteriaBuilder.lessThanOrEqualTo(root.get("publishDate"), endDate)
+            );
+        }
+    
+        // Exécution de la recherche avec les spécifications
+        return documentRepository.findAll(spec, pageable);
+    }
+
     
 
 }
