@@ -17,52 +17,71 @@
 <body th:replace="layout/default-layout::body(title='Liste des Documents')">
     <div th:fragment="content">
         <div class="container mt-5">
-            <!-- Formulaire de filtrage et recherche -->
-        <form method="get" action="/documents">
-        <div class="row mb-3">
-            <!-- Recherche par titre -->
-            <div class="col-md-4">
-                <input type="text" class="form-control" name="searchQuery" placeholder="Rechercher par titre" th:value="${searchQuery}">
-            </div>
-
-            <!-- Filtrage par catégorie -->
-            <div class="col-md-3">
-                <select name="sortByCategory" id="sortByCategory" class="form-control">
-                    <option value="">Sélectionner une catégorie</option>
-                    <option th:each="category : ${categories}" 
-                            th:value="${category.name}" 
-                            th:text="${category.name}"></option>
-                </select>
-            </div>
-
-            <!-- Filtrage par format de fichier -->
-            <div class="col-md-3">
-                <select name="sortByFileFormat" class="form-control">
-                    <option value="">Sélectionner un format</option>
-                    <option th:value="PDF" th:text="'PDF'"></option>
-                    <option th:value="DOC" th:text="'DOC'"></option>
-                    <option th:value="DOCX" th:text="'DOCX'"></option>
-                    <option th:value="TXT" th:text="'TXT'"></option>
-                    <option th:value="XLS" th:text="'XLS'"></option>
-                    <option th:value="XLSX" th:text="'XLSX'"></option>
-                    <option th:value="CSV" th:text="'CSV'"></option>
-                </select>
-            </div>
-
-            <!-- Bouton de soumission -->
-            <div class="col-md-2">
-                <button type="submit" class="btn btn-primary w-100">Filtrer</button>
-            </div>
+            <!-- Section pour afficher le nombre total de documents -->
+        <div class="card bg-light mb-4 shadow-sm">
+        <div class="card-body d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center">
+            <i class="bi bi-file-text fs-4 me-2 text-primary"></i>
+            <h5 class="card-title mb-0">Documents disponibles</h5>
         </div>
-    </form>
+        <div class="bg-primary text-white px-4 py-2 rounded-pill">
+            <span class="fw-bold" th:text="${documentCount}">0</span>
+        </div>
+        </div>
+        </div>
+
+            <!-- Formulaire de filtrage et recherche -->
+            <form method="get" action="/documents">
+                <div class="row mb-3">
+                    <!-- Recherche par titre -->
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" name="searchQuery" placeholder="Rechercher par titre" th:value="${searchQuery}">
+                    </div>
+
+                    <!-- Filtrage par catégorie -->
+                    <div class="col-md-3">
+                        <select name="sortByCategory" id="sortByCategory" class="form-control">
+                            <option value="">Sélectionner une catégorie</option>
+                            <option th:each="category : ${categories}" 
+                                    th:value="${category.name}" 
+                                    th:text="${category.name}"></option>
+                        </select>
+                    </div>
+
+                    <!-- Filtrage par format de fichier -->
+                    <div class="col-md-3">
+                        <select name="sortByFileFormat" class="form-control">
+                            <option value="">Sélectionner un format</option>
+                            <option th:value="PDF" th:text="'PDF'"></option>
+                            <option th:value="DOC" th:text="'DOC'"></option>
+                            <option th:value="DOCX" th:text="'DOCX'"></option>
+                            <option th:value="TXT" th:text="'TXT'"></option>
+                            <option th:value="XLS" th:text="'XLS'"></option>
+                            <option th:value="XLSX" th:text="'XLSX'"></option>
+                            <option th:value="CSV" th:text="'CSV'"></option>
+                        </select>
+                    </div>
+
+                    <!-- Bouton de soumission -->
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">Filtrer</button>
+                    </div>
+
+                    <!-- Bouton pour réinitialiser les filtres -->
+                <div class="col-md-2">
+                <a th:href="@{/documents}" class="btn btn-primary mt-3">Réinitialiser</a>
+                </div>
+
+                </div>
+            </form>
+
+
+            
+
             <!-- Bouton pour ajouter un nouveau document -->
             <div class="mb-3">
                 <a th:href="@{/documents/create}" class="btn btn-primary">Ajouter un Document</a>
             </div>
-            <!-- Bouton pour réinitialiser les filtres -->
-            <a th:href="@{/documents}" class="btn btn-primary w-100">
-                Réinitialiser
-            </a>
 
             <!-- Tableau des documents -->
             <table class="table table-hover" th:unless="${#lists.isEmpty(documents)}">
@@ -108,27 +127,54 @@
             <!-- Pagination -->
             <div class="text-center mt-3">
                 <nav th:if="${totalPages > 1}">
-                    <ul class="pagination pagination-sm justify-content-center">
-                        <li class="page-item" th:classappend="${currentPage == 0 ? 'disabled' : ''}">
-                            <a class="page-link" th:href="@{/documents(page=${currentPage-1}, pageSize=${pageSize})}">&laquo;</a>
-                        </li>
-                        <li th:each="index: ${#numbers.sequence(0, totalPages - 1)}" 
-                            class="page-item" 
-                            th:classappend="${currentPage == index ? 'active' : ''}">
-                            <a class="page-link" th:href="@{/documents(page=${index}, pageSize=${pageSize})}" th:text="${index + 1}"></a>
-                        </li>
-                        <li class="page-item" th:classappend="${currentPage == totalPages - 1 ? 'disabled' : ''}">
-                            <a class="page-link" th:href="@{/documents(page=${currentPage+1}, pageSize=${pageSize})}">&raquo;</a>
-                        </li>
-                    </ul>
-                </nav>
+    <ul class="pagination pagination-sm justify-content-center">
+        <!-- Lien vers la page précédente -->
+        <li class="page-item" th:classappend="${currentPage == 0 ? 'disabled' : ''}">
+            <a class="page-link" 
+               th:href="@{/documents(page=${currentPage-1}, pageSize=${pageSize}, searchQuery=${searchQuery}, sortByCategory=${sortByCategory}, sortByFileFormat=${sortByFileFormat})}">&laquo;</a>
+        </li>
+
+        <!-- Lien pour chaque page -->
+        <li th:each="index: ${#numbers.sequence(0, totalPages - 1)}" 
+            class="page-item" 
+            th:classappend="${currentPage == index ? 'active' : ''}">
+            <a class="page-link" 
+               th:href="@{/documents(page=${index}, pageSize=${pageSize}, searchQuery=${searchQuery}, sortByCategory=${sortByCategory}, sortByFileFormat=${sortByFileFormat})}" 
+               th:text="${index + 1}"></a>
+        </li>
+
+        <!-- Lien vers la page suivante -->
+        <li class="page-item" th:classappend="${currentPage == totalPages - 1 ? 'disabled' : ''}">
+            <a class="page-link" 
+               th:href="@{/documents(page=${currentPage+1}, pageSize=${pageSize}, searchQuery=${searchQuery}, sortByCategory=${sortByCategory}, sortByFileFormat=${sortByFileFormat})}">&raquo;</a>
+        </li>
+    </ul>
+</nav>
+
                 
-                <!-- Page Number Display -->
+                <!-- Indicateur de numéro de page -->
                 <div class="mt-2 text-muted" th:if="${totalPages > 1}">
                     Page <span th:text="${currentPage + 1}"></span> sur <span th:text="${totalPages}"></span>
                 </div>
             </div>
         </div>
     </div>
+    <script>
+        function updateDocumentCount() {
+            fetch('/documents/count')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('documentCount').textContent = data.count;
+                })
+                .catch(error => console.error('Erreur lors de la mise à jour du compteur :', error));
+        }
+
+        // Rafraîchissement automatique après ajout/suppression
+        document.querySelectorAll('form[onsubmit]').forEach(form => {
+            form.addEventListener('submit', function () {
+                setTimeout(updateDocumentCount, 500);
+            });
+        });
+    </script>
 </body>
 </html>

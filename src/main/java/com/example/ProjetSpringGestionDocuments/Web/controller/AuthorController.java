@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.example.ProjetSpringGestionDocuments.DAO.Entity.Author;
+import com.example.ProjetSpringGestionDocuments.DAO.Repository.AuthorRepository;
 import com.example.ProjetSpringGestionDocuments.business.services.AuthorService;
 
 import jakarta.validation.Valid;
@@ -24,6 +25,9 @@ public class AuthorController {
 
     @Autowired
     private AuthorService authorService;
+
+    @Autowired
+    private AuthorRepository authorRepository;
 
     
     @GetMapping
@@ -47,6 +51,7 @@ public class AuthorController {
         model.addAttribute("pageSize", pageSize);
         model.addAttribute("totalPages", authorPage.getTotalPages());
         model.addAttribute("searchQuery", searchQuery);
+        model.addAttribute("documentCount", authorRepository.count());
 
         return "auteurs";
     }

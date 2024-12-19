@@ -233,7 +233,43 @@ public class DocumentServiceImpl implements DocumentService {
         // Exécution de la recherche avec les spécifications
         return documentRepository.findAll(spec, pageable);
     }
-
+    
+    public Page<Document> searchDocumentsWithCategoryOrFileFormat(
+        String searchQuery, 
+        String category, 
+        FileFormat fileFormat,  
+        Pageable pageable) {
+        
+        // Implémentation des critères de recherche avec Spring Data JPA Specifications
+        Specification<Document> spec = Specification.where(null);
+    
+        // Recherche par titre ou mots-clés
+        if (StringUtils.hasText(searchQuery)) {
+            spec = spec.and((root, query, criteriaBuilder) -> 
+                criteriaBuilder.or(
+                    criteriaBuilder.like(criteriaBuilder.lower(root.get("title")), "%" + searchQuery.toLowerCase() + "%"),
+                    criteriaBuilder.like(criteriaBuilder.lower(root.get("keywords")), "%" + searchQuery.toLowerCase() + "%")
+                )
+            );
+        }
+    
+        // Filtrage par catégorie
+        if (StringUtils.hasText(category)) {
+            spec = spec.and((root, query, criteriaBuilder) -> 
+                criteriaBuilder.equal(root.get("category").get("name"), category)
+            );
+        }
+    
+        // Filtrage par format de fichier
+        if (fileFormat != null) {
+            spec = spec.and((root, query, criteriaBuilder) -> 
+                criteriaBuilder.equal(root.get("fileFormat"), fileFormat)
+            );
+        }
+    
+        // Exécution de la recherche avec les spécifications
+        return documentRepository.findAll(spec, pageable);
+    }
     
 
 }

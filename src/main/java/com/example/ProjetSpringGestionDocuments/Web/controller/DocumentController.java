@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -132,21 +133,20 @@ public class DocumentController {
     }
 
     @GetMapping
-    public String listDocuments(
+public String listDocuments(
     @RequestParam(defaultValue = "0") int page,
     @RequestParam(defaultValue = "4") int pageSize,
     @RequestParam(required = false) String searchQuery,
     @RequestParam(required = false) String sortByCategory,
     @RequestParam(required = false) FileFormat sortByFileFormat,
+    @RequestParam(required = false, defaultValue = "id") String sortBy,
     Model model) {
 
     // Préparer la pagination
-    PageRequest pageRequest = PageRequest.of(page, pageSize);
-
-    // Initialiser la page de documents
-    Page<Document> documentPage;
+    PageRequest pageRequest = PageRequest.of(page, pageSize, Sort.by(sortBy));
 
     // Logique de recherche et de filtrage
+    Page<Document> documentPage;
     if (searchQuery != null && !searchQuery.isEmpty()) {
         // Recherche par titre
         documentPage = documentService.searchDocumentsByTitle(searchQuery, pageRequest);
@@ -177,12 +177,15 @@ public class DocumentController {
     model.addAttribute("fileNames", fileNames);
     model.addAttribute("pageSize", pageSize);
     model.addAttribute("currentPage", page);
+    model.addAttribute("documentCount", documentRepository.count());
     model.addAttribute("totalPages", documentPage.getTotalPages());
     model.addAttribute("searchQuery", searchQuery);
     model.addAttribute("categories", categoryRepository.findAll());
 
     return "documents";
 }
+
+
 
 @GetMapping("/edit/{id}")
 public String showEditDocumentForm(@PathVariable Long id, Model model) {

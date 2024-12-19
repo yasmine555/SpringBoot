@@ -31,5 +31,9 @@ public interface DocumentService {
     Page<Document> getDocumentsSortedByCategory(String sortByCategory, PageRequest pageRequest);
     Page<Document> getDocumentsSortedByFileFormat(FileFormat sortByFileFormat, PageRequest pageRequest);
     Page<Document> getDocumentSortedByCategoryPagination(String order, Pageable pegeable);
-   
+    Page<Document> searchDocumentsWithCategoryOrFileFormat(
+        String searchQuery, 
+        String category, 
+        FileFormat fileFormat,  
+        Pageable pageable);
 }

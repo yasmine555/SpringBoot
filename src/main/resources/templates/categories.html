@@ -13,8 +13,19 @@
 <body th:replace="layout/default-layout::body(title='Liste des Catégories')">
     <div th:fragment="content">
         <div class="container mt-5">
-
             
+            <!-- Section pour afficher le nombre total de documents -->
+        <div class="card bg-light mb-4 shadow-sm">
+            <div class="card-body d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-file-text fs-4 me-2 text-primary"></i>
+                <h5 class="card-title mb-0">Categories disponibles</h5>
+            </div>
+            <div class="bg-primary text-white px-4 py-2 rounded-pill">
+                <span class="fw-bold" th:text="${documentCount}">0</span>
+            </div>
+            </div>
+            </div>
             <!-- Formulaire de recherche -->
         <form method="get" action="/categories" class="mb-4">
             <div class="row">
@@ -93,5 +104,22 @@
             </div>
         </div>
     </div>
+    <script>
+        function updateDocumentCount() {
+            fetch('/documents/count')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('documentCount').textContent = data.count;
+                })
+                .catch(error => console.error('Erreur lors de la mise à jour du compteur :', error));
+        }
+
+        // Rafraîchissement automatique après ajout/suppression
+        document.querySelectorAll('form[onsubmit]').forEach(form => {
+            form.addEventListener('submit', function () {
+                setTimeout(updateDocumentCount, 500);
+            });
+        });
+    </script>
 </body>
 </html>

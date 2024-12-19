@@ -12,7 +12,7 @@ public class AuthController {
     @GetMapping("/login")
     public String login(Authentication authentication) {
         if (authentication != null && authentication.isAuthenticated()) {
-            return "redirect:/access-denied";
+            return "redirect:/admin/home";
         }
         return "login";
     }

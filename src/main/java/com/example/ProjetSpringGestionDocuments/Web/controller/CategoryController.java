@@ -9,6 +9,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.ProjetSpringGestionDocuments.DAO.Entity.Category;
+import com.example.ProjetSpringGestionDocuments.DAO.Repository.CategoryRepository;
 import com.example.ProjetSpringGestionDocuments.business.services.CategoryService;
 
 import jakarta.validation.Valid;
@@ -19,6 +20,9 @@ public class CategoryController {
 
     @Autowired
     private CategoryService categoryService;
+
+    @Autowired
+    private CategoryRepository categoryRepository;
 
     // Liste des categories
     @GetMapping
@@ -39,6 +43,7 @@ public class CategoryController {
     model.addAttribute("categories", categoryPage.getContent());
     model.addAttribute("currentPage", page);
     model.addAttribute("pageSize", pageSize);
+    model.addAttribute("documentCount", categoryRepository.count());
     model.addAttribute("totalPages", categoryPage.getTotalPages());
     model.addAttribute("searchName", searchName); // Ajouter pour conserver le terme de recherche
     
